@@ -54,9 +54,9 @@ def convertTypeData(data):
     for dupe in duplicates:
         if dupe in data["no_damage_from"]:
             effectiveness["0x"].append(dupe)
-        elif dupe in data["half_damage_from"]:
+        elif dupe in data["half_damage_from"] and dupe not in data["double_damage_from"]:
             effectiveness["0.25x"].append(dupe)
-        else:
+        elif dupe in data["double_damage_from"] and dupe not in data["half_damage_from"]:
             effectiveness["4x"].append(dupe)
 
     for typ in allTypes:
