@@ -2,7 +2,6 @@ import sqlite3
 import json
 import requests
 
-#needs touch up / rewrite
 def get_user_pokemon(name):
     n = name.strip().lower()
     conn = sqlite3.connect("pokemon.db")
@@ -38,19 +37,20 @@ def get_pokemon_id(pdata):
     return pdata["id"]
 
 def get_type_information(pdata):
-    output = dict()
+    output = []
     types = get_pokemon_types(pdata)
     for typ in types:
         req = requests.get(f"https://pokeapi.co/api/v2/type/{typ}")
-        data = req.json()
-        output.update(data)
-    return data
+        output.append(req.json())
+    return output
+    
 
-def get_pokemon_weakness(pdata):
+def get_pokemon_weakness(typedata):
     return
 
 
 
 rawjson = get_type_information(get_user_pokemon("charizard"))
 
-print(rawjson["damage_relations"]["double_damage_from"])
+print(rawjson[0]["damage_relations"]["double_damage_from"])
+print(rawjson[1]["damage_relations"]["double_damage_from"])
