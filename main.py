@@ -2,19 +2,27 @@ import pokebase as pb
 import sqlite3
 import json
 
-conn = sqlite3.connect("pokemon.db")
-cur = conn.cursor()
 
 def get_user_pokemon(name):
+    n = name.strip().lower()
+    conn = sqlite3.connect("pokemon.db")
+    cur = conn.cursor()
     cur.execute("CREATE TABLE IF NOT EXISTS pokemon (name TEXT PRIMARY KEY, typing TEXT, )")
 
-    cur.execute("SELECT typing FROM pokemon WHERE name = ?", (name))
+    cur.execute("SELECT typing FROM pokemon WHERE name = ?", (n))
     row = cur.fetchone()
 
     if row:
         return json.load(row[0])
 
-    request = requests.get(url)
+    request = requests.get(f"https://pokeapi.co/api/v2/pokemon/{n}")
+    data = request.json()
+
+    cur.execute("INSERT INTO pokemon VALUES (?, ?)", (n, json.dumps(data)))
+    conn.commit()
+
+    return data
+
 def getTypeInfo(pokemon):
     output = []
     for i in range(getAmountOfTypes(pokemon)):
