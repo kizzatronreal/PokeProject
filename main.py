@@ -1,98 +1,56 @@
-import pokebase as pb
 import sqlite3
 import json
+import requests
 
-
+#needs touch up / rewrite
 def get_user_pokemon(name):
     n = name.strip().lower()
     conn = sqlite3.connect("pokemon.db")
     cur = conn.cursor()
-    cur.execute("CREATE TABLE IF NOT EXISTS pokemon (name TEXT PRIMARY KEY, typing TEXT, )")
+    cur.execute("CREATE TABLE IF NOT EXISTS pokemon (name TEXT PRIMARY KEY, id INT NOT NULL UNIQUE, typing TEXT, data TEXT)")
 
-    cur.execute("SELECT typing FROM pokemon WHERE name = ?", (n))
+    cur.execute("SELECT data FROM pokemon WHERE name = ?", (n,))
     row = cur.fetchone()
 
     if row:
-        return json.load(row[0])
+        return json.loads(row[0])
 
-    request = requests.get(f"https://pokeapi.co/api/v2/pokemon/{n}")
-    data = request.json()
+    req = requests.get(f"https://pokeapi.co/api/v2/pokemon/{n}")
+    data = req.json()
 
-    cur.execute("INSERT INTO pokemon VALUES (?, ?)", (n, json.dumps(data)))
+
+    typing = get_pokemon_types(data)
+
+    cur.execute("INSERT INTO pokemon VALUES (?, ?, ?, ?)", (n, get_pokemon_id(data), json.dumps(typing), json.dumps(data)))
+ 
     conn.commit()
 
     return data
 
-def getTypeInfo(pokemon):
+
+def get_pokemon_types(pdata):
     output = []
-    for i in range(getAmountOfTypes(pokemon)):
-        output.append(pokemon.types[i].type.name)
+    for i in range(len(pdata["types"])):
+        output.append(pdata["types"][i]["type"]["name"])
     return output
-    
-def getTypeWeakness(types):
-    typingEffectiveness = {
-        "no_damage_from": [],
-        "half_damage_from": [],
-        "double_damage_from": []
-    }
-    for i in range(len(types)):
-        currType = pb.type_(types[i])
-        for key, value in typingEffectiveness.items():
-            currRelation = getattr(currType.damage_relations, key)
-            #t is accessing the individual types
-            for t in currRelation:
-                value.append(t.name)
-    return typingEffectiveness
 
-#might need rewrite
-def convertTypeData(data):
-    effectiveness = {
-        "0x": [],
-        "0.25x": [],
-        "0.5x": [],
-        "2x": [],
-        "4x": []
-    }
-    allTypes = set()
-    duplicates = set()
-    #find duplicates
-    for key, value in data.items():
-        #t is the individual types
-        for t in value:
-            if t in allTypes:
-                duplicates.add(t)
-            else:
-                allTypes.add(t)
-    #kinda spaghetti fr might need rewrite idk
-    for dupe in duplicates:
-        if dupe in data["no_damage_from"]:
-            effectiveness["0x"].append(dupe)
-        elif dupe in data["half_damage_from"] and dupe not in data["double_damage_from"]:
-            effectiveness["0.25x"].append(dupe)
-        elif dupe in data["double_damage_from"] and dupe not in data["half_damage_from"]:
-            effectiveness["4x"].append(dupe)
+def get_pokemon_id(pdata):
+    return pdata["id"]
 
-    for typ in allTypes:
-        if typ in data["no_damage_from"] and typ not in duplicates:
-            effectiveness["0x"].append(typ)
-        elif typ in data["half_damage_from"] and typ not in duplicates:
-            effectiveness["0.5x"].append(typ)
-        elif typ in data["double_damage_from"] and typ not in duplicates:
-            effectiveness["2x"].append(typ)
-    return effectiveness
+def get_type_information(pdata):
+    output = dict()
+    types = get_pokemon_types(pdata)
+    for typ in types:
+        req = requests.get(f"https://pokeapi.co/api/v2/type/{typ}")
+        data = req.json()
+        output.update(data)
+    return data
 
-    
-
-def getAmountOfTypes(pokemon):
-    return len(pokemon.types)
-
-def main():
-    userPokemon = getUserPokemon()
-    types = getTypeInfo(userPokemon)
-    listOfTypes = getTypeWeakness(types)
-    print(convertTypeData(listOfTypes))
+def get_pokemon_weakness(pdata):
+    return
 
 
 
+rawjson = get_type_information(get_user_pokemon("charizard"))
 
-main()
+print(rawjson["damage_relations"]["double_damage_from"])
