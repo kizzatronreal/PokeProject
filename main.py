@@ -1,15 +1,20 @@
 import pokebase as pb
+import sqlite3
+import json
 
+conn = sqlite3.connect("pokemon.db")
+cur = conn.cursor()
 
-def getUserPokemon():
-    pokemon = input("What pokemon do you want to check" + "\n")
-    try:
-        p = pb.pokemon(pokemon.strip().lower())
-        p.types #this is needed to triggerr the exception if invalid name
-    except AttributeError:
-        raise AttributeError("Please input a string for the pokemon name!")
-    return p
+def get_user_pokemon(name):
+    cur.execute("CREATE TABLE IF NOT EXISTS pokemon (name TEXT PRIMARY KEY, typing TEXT, )")
 
+    cur.execute("SELECT typing FROM pokemon WHERE name = ?", (name))
+    row = cur.fetchone()
+
+    if row:
+        return json.load(row[0])
+
+    request = requests.get(url)
 def getTypeInfo(pokemon):
     output = []
     for i in range(getAmountOfTypes(pokemon)):
@@ -69,12 +74,6 @@ def convertTypeData(data):
     return effectiveness
 
     
-
-
-        
-
-   
-
 
 def getAmountOfTypes(pokemon):
     return len(pokemon.types)
