@@ -65,9 +65,12 @@ def get_type_information(typedata):
     return output
 
 def calculate_typings(types):
-    if len(types) < 2:
-        return types[0]
     output = []
+    if len(types) < 2:
+        for i in range(len(types[0])):
+            output.append(types[0][i][0])
+        return output
+
     for i in range(len(types[0])):
         multipliedValue = types[0][i][0] * types[1][i][0]
         output.append(multipliedValue)
@@ -101,7 +104,7 @@ def create_type_dict(typevalues):
 
 
 #:skull:
-rawdict = create_type_dict(calculate_typings(get_type_information(break_down_typings(get_pokemon_types(get_pokemon("garchomp"))))))
+rawdict = create_type_dict(calculate_typings(get_type_information(break_down_typings(get_pokemon_types(get_pokemon("pikachu"))))))
 
 print(rawdict)
 
