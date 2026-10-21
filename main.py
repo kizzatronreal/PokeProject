@@ -28,7 +28,7 @@ def get_pokemon(name):
 
     return typeData
 
-
+#get_pokemon_types as param
 def break_down_typings(typelist):
     if len(typelist) > 1:
         return(typelist[0], typelist[1])
@@ -62,17 +62,28 @@ def get_type_information(typedata):
         if type2:
             cur.execute(f"SELECT {type2} from type_sheet")
             output.append(cur.fetchall())
+    return break_down_tuples(output)
+
+#helper for get_type_information
+def break_down_tuples(tuplelist):
+    output = []
+    for tup in tuplelist:
+        indexlist = []
+        for t in tup:
+            t = float(t[0])
+            indexlist.append(t)
+        output.append(indexlist)
     return output
 
+#get_type_information as param
 def calculate_typings(types):
     output = []
-    if len(types) < 2:
-        for i in range(len(types[0])):
-            output.append(types[0][i][0])
-        return output
+    secondMultiplierList = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    if len(types) > 1:
+        secondMultiplierList = types[1]
 
-    for i in range(len(types[0])):
-        multipliedValue = types[0][i][0] * types[1][i][0]
+    for i, multiplier in enumerate(types[0]):
+        multipliedValue = multiplier * secondMultiplierList[i]
         output.append(multipliedValue)
     return output
 
@@ -104,7 +115,10 @@ def create_type_dict(typevalues):
 
 
 #:skull:
-rawdict = create_type_dict(calculate_typings(get_type_information(break_down_typings(get_pokemon_types(get_pokemon("pikachu"))))))
+#rawdict = create_type_dict(calculate_typings(get_type_information(break_down_typings(get_pokemon_types(get_pokemon("pikachu"))))))
 
-print(rawdict)
+test2 = get_type_information(break_down_typings(get_pokemon_types(get_pokemon("garchomp"))))
+
+
+print(test2)
 
