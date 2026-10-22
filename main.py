@@ -5,33 +5,38 @@ from contextlib import closing
 
 pokemon_types = ["normal","fire","water","electric","grass","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy"]
 
+def fetch_pokemon_from_db(conn, name):
+    cur = conn.cursor()
+    cur.execute("CREATE TABLE IF NOT EXISTS pokemon (name TEXT PRIMARY KEY, id INT NOT NULL UNIQUE, type1 TEXT, type2 TEXT)")
+    cur.execute("SELECT type1, type2 FROM pokemon WHERE name = ?", (name,))
+    row = cur.fetchall()
+    if row:
+        return json.loads(row)
+    return False
 
-#probably should rewrite this
+#might be betterr to just use a seperate connection for each db helper
 def get_pokemon(name):
     n = name.strip().lower()
-    conn = sqlite3.connect("pokemon.db")
+    with closing(sqlite3.connect("pokemon.db")) as conn:
+        check_db = fetch_pokemon_from_db(conn, n)
+        if check_db:
+            return check_db
+        cur = conn.cursor()
+        
+        req = requests.get(f"https://pokeapi.co/api/v2/pokemon/{n}")
+        
+        data = req.json()
+        type1, type2 = break_down_typings(get_pokemon_types(data["types"]))
+        
+        save_to_pokemon_db(conn, n, get_pokemon_id(data), type1, type2)
+
+        return type1, type2
+
+def save_to_pokemon_db(conn, name, id, type1, type2):
     cur = conn.cursor()
-    cur.execute("CREATE TABLE IF NOT EXISTS pokemon (name TEXT PRIMARY KEY, id INT NOT NULL UNIQUE, type1 TEXT, type2 TEXT, raw_type_data TEXT)")
+    cur.execute("INSERT INTO pokemon VALUES (?, ?, ?, ?)", (name, id, type1, type2))
 
-    cur.execute("SELECT raw_type_data FROM pokemon WHERE name = ?", (n,))
-    row = cur.fetchone()
-
-    if row:
-        return json.loads(row[0])
-
-    req = requests.get(f"https://pokeapi.co/api/v2/pokemon/{n}")
-    data = req.json()
-    typeData = data["types"]
-
-
-    type1, type2 = break_down_typings(get_pokemon_types(typeData))
-
-    cur.execute("INSERT INTO pokemon VALUES (?, ?, ?, ?, ?)", (n, get_pokemon_id(data), type1, type2, json.dumps(typeData)))
- 
-    conn.commit()
-    conn.close()
-
-    return typeData
+        
 
 #get_pokemon_types as param
 def break_down_typings(typelist):
@@ -82,22 +87,21 @@ def break_down_tuples(tuplelist):
 #get_type_information as param
 def calculate_typings(types):
     output = []
-    secondMultiplierList = [1] * len(types[0])
+    second_multiplier_list = [1] * len(types[0])
     if len(types) > 1:
-        secondMultiplierList = types[1]
+        second_multiplier_list = types[1]
 
     for i, multiplier in enumerate(types[0]):
-        multipliedValue = multiplier * secondMultiplierList[i]
-        output.append(multipliedValue)
+        multiplied_value = multiplier * second_multiplier_list[i]
+        output.append(multiplied_value)
     return dict(zip(pokemon_types, output))
 
 
 
-#:skull:
-#rawdict = create_type_dict(calculate_typings(get_type_information(break_down_typings(get_pokemon_types(get_pokemon("pikachu"))))))
+if __name__ == "__main__":
+    test = calculate_typings(get_type_information(get_pokemon("charmander")))
 
-test2 = calculate_typings(get_type_information(break_down_typings(get_pokemon_types(get_pokemon("garchomp")))))
+    print(test)
 
 
-print(test2)
 
