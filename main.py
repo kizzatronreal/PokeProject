@@ -35,6 +35,7 @@ def get_pokemon(name):
 def save_to_pokemon_db(conn, name, id, type1, type2):
     cur = conn.cursor()
     cur.execute("INSERT INTO pokemon VALUES (?, ?, ?, ?)", (name, id, type1, type2))
+    conn.commit()
 
         
 
