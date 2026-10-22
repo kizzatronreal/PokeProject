@@ -25,6 +25,12 @@ def get_pokemon(name):
         
         req = requests.get(f"https://pokeapi.co/api/v2/pokemon/{n}")
         
+        try:
+            req.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            raise Exception(f"HTTP error roccured: {e}")
+
+
         data = req.json()
         type1, type2 = break_down_typings(get_pokemon_types(data["types"]))
         
@@ -100,7 +106,7 @@ def calculate_typings(types):
 
 
 if __name__ == "__main__":
-    test = calculate_typings(get_type_information(get_pokemon("charmander")))
+    test = calculate_typings(get_type_information(get_pokemon("chhsayn")))
 
     print(test)
 
