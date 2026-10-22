@@ -3,6 +3,10 @@ import json
 import requests
 from contextlib import closing
 
+pokemon_types = ["normal","fire","water","electric","grass","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy"]
+
+
+#probably should rewrite this
 def get_pokemon(name):
     n = name.strip().lower()
     conn = sqlite3.connect("pokemon.db")
@@ -25,6 +29,7 @@ def get_pokemon(name):
     cur.execute("INSERT INTO pokemon VALUES (?, ?, ?, ?, ?)", (n, get_pokemon_id(data), type1, type2, json.dumps(typeData)))
  
     conn.commit()
+    conn.close()
 
     return typeData
 
@@ -37,7 +42,7 @@ def break_down_typings(typelist):
 def get_pokemon_types(pdata):
     output = []
     for i in range(len(pdata)):
-        output.append(pdata[i]["type"]["name"])
+        output.append(pdata[i]["type"]["name"].lower())
     return output
 
 def get_pokemon_id(pdata):
@@ -46,9 +51,8 @@ def get_pokemon_id(pdata):
 
     
 def check_if_types_allowed(types):
-    pokemon_types = {"normal","fire","water","electric","grass","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy", None}
     for typ in types:
-        if typ not in pokemon_types:
+        if typ not in pokemon_types and typ is not None:
             raise ValueError("Not valid type")
 
 def get_type_information(typedata):
@@ -78,46 +82,21 @@ def break_down_tuples(tuplelist):
 #get_type_information as param
 def calculate_typings(types):
     output = []
-    secondMultiplierList = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    secondMultiplierList = [1] * len(types[0])
     if len(types) > 1:
         secondMultiplierList = types[1]
 
     for i, multiplier in enumerate(types[0]):
         multipliedValue = multiplier * secondMultiplierList[i]
         output.append(multipliedValue)
-    return output
+    return dict(zip(pokemon_types, output))
 
-#use calculate_typings as param
-def create_type_dict(typevalues):
-    types = {
-        "normal": 0,
-        "fire": 1,
-        "water": 2,
-        "electric": 3,
-        "grass": 4,
-        "ice": 5,
-        "fighting": 6,
-        "poison": 7,
-        "ground": 8,
-        "flying": 9,
-        "psychic": 10,
-        "bug": 11,
-        "rock": 12,
-        "ghost": 13,
-        "dragon": 14,
-        "dark": 15,
-        "steel": 16,
-        "fairy": 17
-    }
-    for key, value in types.items():
-        types[key] = typevalues[value]
-    return types
 
 
 #:skull:
 #rawdict = create_type_dict(calculate_typings(get_type_information(break_down_typings(get_pokemon_types(get_pokemon("pikachu"))))))
 
-test2 = get_type_information(break_down_typings(get_pokemon_types(get_pokemon("garchomp"))))
+test2 = calculate_typings(get_type_information(break_down_typings(get_pokemon_types(get_pokemon("garchomp")))))
 
 
 print(test2)
