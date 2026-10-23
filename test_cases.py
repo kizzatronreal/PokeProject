@@ -1,5 +1,5 @@
 import pytest
-import main
+import type_logic as main
 
 def test_break_down_tuples():
     testlist = [[(1,), (0.5,), (1,)], [(0,), (1,), (0.5,)]]
