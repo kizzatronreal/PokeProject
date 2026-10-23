@@ -7,12 +7,10 @@ pokemon_types = ["normal","fire","water","electric","grass","ice","fighting","po
 
 def fetch_pokemon_from_db(conn, name):
     cur = conn.cursor()
-    cur.execute("CREATE TABLE IF NOT EXISTS pokemon (name TEXT PRIMARY KEY, id INT NOT NULL UNIQUE, type1 TEXT, type2 TEXT)")
     cur.execute("SELECT type1, type2 FROM pokemon WHERE name = ?", (name,))
     row = cur.fetchone()
-    if row:
-        return row
-    return None
+    return row
+
 
 #might be betterr to just use a seperate connection for each db helper
 def get_pokemon(name):
@@ -21,7 +19,6 @@ def get_pokemon(name):
         check_db = fetch_pokemon_from_db(conn, n)
         if check_db:
             return check_db
-        cur = conn.cursor()
         
         req = requests.get(f"https://pokeapi.co/api/v2/pokemon/{n}", timeout = 10)
         
@@ -103,9 +100,13 @@ def calculate_typings(types):
         output.append(multiplied_value)
     return dict(zip(pokemon_types, output))
 
-
+def create_pokemon_table():
+    with closing(sqlite3.connect("pokemon.db")) as conn:
+        cur = conn.cursor()
+        cur.execute("CREATE TABLE IF NOT EXISTS pokemon (name TEXT PRIMARY KEY, id INT NOT NULL UNIQUE, type1 TEXT, type2 TEXT)")
 
 if __name__ == "__main__":
+    
     test = calculate_typings(get_type_information(get_pokemon("chhsayn")))
 
     print(test)
