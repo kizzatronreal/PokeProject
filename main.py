@@ -9,10 +9,10 @@ def fetch_pokemon_from_db(conn, name):
     cur = conn.cursor()
     cur.execute("CREATE TABLE IF NOT EXISTS pokemon (name TEXT PRIMARY KEY, id INT NOT NULL UNIQUE, type1 TEXT, type2 TEXT)")
     cur.execute("SELECT type1, type2 FROM pokemon WHERE name = ?", (name,))
-    row = cur.fetchall()
+    row = cur.fetchone()
     if row:
-        return json.loads(row)
-    return False
+        return row
+    return None
 
 #might be betterr to just use a seperate connection for each db helper
 def get_pokemon(name):
@@ -23,12 +23,12 @@ def get_pokemon(name):
             return check_db
         cur = conn.cursor()
         
-        req = requests.get(f"https://pokeapi.co/api/v2/pokemon/{n}")
+        req = requests.get(f"https://pokeapi.co/api/v2/pokemon/{n}", timeout = 10)
         
         try:
             req.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            raise Exception(f"HTTP error roccured: {e}")
+            raise requests.exceptions.HTTPError(f"HTTP error occured: {e}")
 
 
         data = req.json()
