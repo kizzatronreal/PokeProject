@@ -1,7 +1,6 @@
 import sqlite3
 import json
 import requests
-from fastapi import FastAPI
 from contextlib import closing
 
 pokemon_types = ["normal","fire","water","electric","grass","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy"]
@@ -32,7 +31,7 @@ def get_pokemon(name):
         data = req.json()
         type1, type2 = break_down_typings(get_pokemon_types(data["types"]))
         
-        save_to_pokemon_db(conn, n, get_pokemon_id(data), type1, type2)
+        save_to_pokemon_db(conn, get_pokemon_name(data), get_pokemon_id(data), type1, type2)
 
         return type1, type2
 
@@ -57,6 +56,9 @@ def get_pokemon_types(pdata):
 
 def get_pokemon_id(pdata):
     return pdata["id"]
+
+def get_pokemon_name(pdata):
+    return pdata["name"]
 
 
     
