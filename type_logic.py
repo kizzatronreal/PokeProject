@@ -2,6 +2,7 @@ import sqlite3
 import json
 import requests
 from contextlib import closing
+from fastapi import HTTPException
 
 pokemon_types = ["normal","fire","water","electric","grass","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy"]
 
@@ -12,7 +13,6 @@ def fetch_pokemon_from_db(conn, name):
     return row
 
 
-#might be betterr to just use a seperate connection for each db helper
 def get_pokemon(name):
     n = name.strip().lower()
     with closing(sqlite3.connect("pokemon.db")) as conn:
@@ -25,6 +25,8 @@ def get_pokemon(name):
         try:
             req.raise_for_status()
         except requests.exceptions.HTTPError as e:
+            if req.status_code == 404:
+                raise HTTPException(status_code=404, detail="Pokemon not found")
             raise requests.exceptions.HTTPError(f"HTTP error occured: {e}")
 
 
