@@ -33,7 +33,7 @@ def get_pokemon(name):
         data = req.json()
         type1, type2 = break_down_typings(get_pokemon_types(data["types"]))
         
-        save_to_pokemon_db(conn, get_pokemon_name(data), get_pokemon_id(data), type1, type2)
+        save_to_pokemon_db(conn, get_pokemon_name_from_json(data), get_pokemon_id_from_json(data), type1, type2)
 
         return type1, type2
 
@@ -56,12 +56,19 @@ def get_pokemon_types(pdata):
         output.append(pdata[i]["type"]["name"].lower())
     return output
 
-def get_pokemon_id(pdata):
+def get_pokemon_id_from_json(pdata):
     return pdata["id"]
 
-def get_pokemon_name(pdata):
-    return pdata["name"]
+def get_pokemon_id(pokemon_name):
+    with closing(sqlite3.connect("pokemon.db")) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM pokemon WHERE name = ?", (pokemon_name.lower(),))
+        pokemon_id = cur.fetchone()
+        return pokemon_id[0]
 
+
+def get_pokemon_name_from_json(pdata):
+    return pdata["name"]
 
     
 def check_if_types_allowed(types):
