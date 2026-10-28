@@ -1,16 +1,22 @@
-PokeProject aims to be an accurate Pokemon team analyzer to identify imbalanced teams and improve them.
+# PokeProject
 
-Still Heavily In Development.
+PokeProject aims to be an accurate Pokémon team analyzer that identifies imbalanced teams and helps improve them.
 
+> **Status:** Heavily in development.
 
+## Setup
 
+1. Run `setup_db.py` to create the required database file.
+2. To add all Pokémon to the database, uncomment the `add_pokemon_to_db()` function. This step is optional.
 
-Instructions:
-    run the setup_db.py script to create the necessary database file.
-        If you wish to add all pokemon to db uncomment the add_pokemon_to_db() function. (This is not necessary)
-    
-    within type_logic.py you can edit the test variable located at the bottom of the script, by changing the get_pokemon() parameter to whatever pokemon you want to lookup.
+## Testing `type_logic.py`
 
-    run type_logic.py.
+In `type_logic.py`, edit the `test` variable at the bottom of the file. Change the `get_pokemon()` parameter to the Pokémon you want to look up, then run `type_logic.py`.
 
-    If you wish you can run the command "fastapi dev main.py" to launch the application in a production enviroment.
+## Launching the application
+
+To launch the application locally, run:
+
+```bash
+fastapi dev main.py
+```
