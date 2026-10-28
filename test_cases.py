@@ -20,7 +20,10 @@ def test_get_pokemon_multipliers():
 def test_type_calculations():
     pikachu_multipliers = main.calculate_typings(main.get_type_information(main.get_pokemon("Pikachu")))
     garchomp_multipliers = main.calculate_typings(main.get_type_information(main.get_pokemon("garchomp")))
+    registeel_multipliers = main.calculate_typings(main.get_type_information(main.get_pokemon("registeel")))
     hardcoded_pikachu_multipliers = {'normal': 1.0, 'fire': 1.0, 'water': 1.0, 'electric': 0.5, 'grass': 1.0, 'ice': 1.0, 'fighting': 1.0, 'poison': 1.0, 'ground': 2.0, 'flying': 0.5, 'psychic': 1.0, 'bug': 1.0, 'rock': 1.0, 'ghost': 1.0, 'dragon': 1.0, 'dark': 1.0, 'steel': 0.5, 'fairy': 1.0}
     hardcoded_garchomp_multipliers = {'normal': 1.0, 'fire': 0.5, 'water': 1.0, 'electric': 0.0, 'grass': 1.0, 'ice': 4.0, 'fighting': 1.0, 'poison': 0.5, 'ground': 1.0, 'flying': 1.0, 'psychic': 1.0, 'bug': 1.0, 'rock': 0.5, 'ghost': 1.0, 'dragon': 2.0, 'dark': 1.0, 'steel': 1.0, 'fairy': 2.0}
+    hardcoded_registeel_multipliers = {'normal': 0.5, 'fire': 2.0, 'water': 1.0, 'electric': 1.0, 'grass': 0.5, 'ice': 0.5, 'fighting': 2.0, 'poison': 0.0, 'ground': 2.0, 'flying': 0.5, 'psychic': 0.5, 'bug': 0.5, 'rock': 0.5, 'ghost': 1.0, 'dragon': 0.5, 'dark': 1.0, 'steel': 0.5, 'fairy': 0.5}
     assert pikachu_multipliers == hardcoded_pikachu_multipliers, "Error in main.py calculate_typings. Incorrect type resistances/strengths assigned to pikachu (single-type)"
     assert garchomp_multipliers == hardcoded_garchomp_multipliers, "Error in main.py calculate_typings. Incorrect type resistances/strengths assigned to garchomp (double-type)"
+    assert registeel_multipliers == hardcoded_registeel_multipliers, "Error in main.py calculate_typings. Incorrect type resistances/strengths assigned to registeel (double-type)"
