@@ -2,6 +2,7 @@ import sqlite3
 import json
 import requests
 from contextlib import closing
+from setup_db import db_path
 
 class PokemonNotFound(Exception):
     def __init__(self, message, error_code=None):
@@ -20,7 +21,7 @@ def fetch_pokemon_from_db(conn, name):
 
 def get_pokemon(name):
     n = name.strip().lower()
-    with closing(sqlite3.connect("pokemon.db")) as conn:
+    with closing(sqlite3.connect(db_path)) as conn:
         check_db = fetch_pokemon_from_db(conn, n)
         if check_db:
             return check_db
@@ -31,10 +32,10 @@ def get_pokemon(name):
             req.raise_for_status()
         except requests.exceptions.HTTPError as e:
             if req.status_code == 404:
-                return PokemonNotFound("Pokemon not found", 404)
+                raise PokemonNotFound("Pokemon not found", 404)
             if req.status_code == 422:
-                return PokemonNotFound("Name validation errror", 422)
-            return PokemonNotFound("Something went wrong", req.status_code)
+                raise PokemonNotFound("Name validation errror", 422)
+            raise PokemonNotFound("Something went wrong", req.status_code)
 
 
         data = req.json()
@@ -67,7 +68,7 @@ def get_pokemon_id_from_json(pdata):
     return pdata["id"]
 
 def get_pokemon_id(pokemon_name):
-    with closing(sqlite3.connect("pokemon.db")) as conn:
+    with closing(sqlite3.connect(db_path)) as conn:
         cur = conn.cursor()
         cur.execute("SELECT id FROM pokemon WHERE name = ?", (pokemon_name.lower(),))
         pokemon_id = cur.fetchone()
@@ -87,7 +88,7 @@ def get_type_information(typedata):
     check_if_types_allowed(typedata)
     output = []
     type1, type2 = typedata
-    with closing(sqlite3.connect("pokemon.db")) as conn:
+    with closing(sqlite3.connect(db_path)) as conn:
         cur = conn.cursor()
         cur.execute(f"SELECT {type1} from type_sheet")
         output.append(cur.fetchall())
@@ -120,7 +121,7 @@ def calculate_typings(types):
     return dict(zip(pokemon_types, output))
 
 def create_pokemon_table():
-    with closing(sqlite3.connect("pokemon.db")) as conn:
+    with closing(sqlite3.connect(db_path)) as conn:
         cur = conn.cursor()
         cur.execute("CREATE TABLE IF NOT EXISTS pokemon (name TEXT PRIMARY KEY, id INT NOT NULL UNIQUE, type1 TEXT, type2 TEXT)")
 

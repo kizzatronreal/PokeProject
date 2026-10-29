@@ -4,10 +4,12 @@ from contextlib import closing
 import requests
 from type_logic import get_pokemon
 import time
+from pathlib import Path
 
+db_path = Path("backend") / "pokemon.db"
 
 def create_type_sheet():
-    with closing(sqlite3.connect("pokemon.db")) as conn:
+    with closing(sqlite3.connect(db_path)) as conn:
         sql = """
             CREATE TABLE IF NOT EXISTS type_sheet (    name TEXT PRIMARY KEY,    normal REAL, fire REAL, water REAL, electric REAL, grass REAL, ice REAL,    fighting REAL, poison REAL, ground REAL, flying REAL, psychic REAL, bug REAL,    rock REAL, ghost REAL, dragon REAL, dark REAL, steel REAL, fairy REAL);
 
@@ -34,7 +36,7 @@ def create_type_sheet():
         cur.executescript(sql);
 
 def create_pokemon_table():
-    with closing(sqlite3.connect("pokemon.db")) as conn:
+    with closing(sqlite3.connect(db_path)) as conn:
         cur = conn.cursor()
         cur.execute("CREATE TABLE IF NOT EXISTS pokemon (name TEXT PRIMARY KEY, id INT NOT NULL UNIQUE, type1 TEXT, type2 TEXT)")
 
