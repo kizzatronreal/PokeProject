@@ -4,9 +4,8 @@ from contextlib import closing
 import requests
 from type_logic import get_pokemon
 import time
-from pathlib import Path
+from config import db_path
 
-db_path = Path("backend") / "pokemon.db"
 
 def create_type_sheet():
     with closing(sqlite3.connect(db_path)) as conn:
@@ -33,7 +32,7 @@ def create_type_sheet():
             ('fairy',    1, 0.5, 1,   1,   1,   1,   2,   0.5, 1,   1,   1,   1,   1,   1,   2,   2,   0.5, 1);
         """
         cur = conn.cursor()
-        cur.executescript(sql);
+        cur.executescript(sql)
 
 def create_pokemon_table():
     with closing(sqlite3.connect(db_path)) as conn:

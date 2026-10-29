@@ -2,7 +2,7 @@ import sqlite3
 import json
 import requests
 from contextlib import closing
-from setup_db import db_path
+from config import db_path
 
 class PokemonNotFound(Exception):
     def __init__(self, message, error_code=None):
