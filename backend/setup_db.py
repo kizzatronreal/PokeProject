@@ -11,7 +11,7 @@ def create_type_sheet():
         sql = """
             CREATE TABLE IF NOT EXISTS type_sheet (    name TEXT PRIMARY KEY,    normal REAL, fire REAL, water REAL, electric REAL, grass REAL, ice REAL,    fighting REAL, poison REAL, ground REAL, flying REAL, psychic REAL, bug REAL,    rock REAL, ghost REAL, dragon REAL, dark REAL, steel REAL, fairy REAL);
 
-            INSERT INTO type_sheet (    name, normal, fire, water, electric, grass, ice,    fighting, poison, ground, flying, psychic, bug,    rock, ghost, dragon, dark, steel, fairy) VALUES    ('normal',   1, 1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   0.5, 0,   1,   1,   0.5, 1),
+            INSERT OR IGNORE INTO type_sheet (    name, normal, fire, water, electric, grass, ice,    fighting, poison, ground, flying, psychic, bug,    rock, ghost, dragon, dark, steel, fairy) VALUES    ('normal',   1, 1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   0.5, 0,   1,   1,   0.5, 1),
             ('fire',     1, 0.5, 0.5, 1,   2,   2,   1,   1,   1,   1,   1,   2,   0.5, 1,   0.5, 1,   2,   1),
             ('water',    1, 2,   0.5, 1,   0.5, 1,   1,   1,   2,   1,   1,   1,   2,   1,   0.5, 1,   1,   1),
             ('electric', 1, 1,   2,   0.5, 0.5, 1,   1,   1,   0,   2,   1,   1,   1,   1,   0.5, 1,   1,   1),
