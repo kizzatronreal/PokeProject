@@ -2,7 +2,12 @@ import sqlite3
 import json
 import requests
 from contextlib import closing
-from fastapi import HTTPException
+
+class PokemonNotFound(Exception):
+    def __init__(self, message, error_code=None):
+        self.message = message
+        self.error_code = error_code
+        super().__init__(self.message)
 
 pokemon_types = ["normal","fire","water","electric","grass","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy"]
 
@@ -26,7 +31,9 @@ def get_pokemon(name):
             req.raise_for_status()
         except requests.exceptions.HTTPError as e:
             if req.status_code == 404:
-                raise HTTPException(status_code=404, detail="Pokemon not found")
+                return PokemonNotFound("Pokemon not found", 404)
+            if req.status_code == 422:
+                return PokemonNotFound("Name validation errror", 422)
             raise requests.exceptions.HTTPError(f"HTTP error occured: {e}")
 
 
