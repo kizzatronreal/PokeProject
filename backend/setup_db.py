@@ -1,7 +1,6 @@
 import sqlite3
 import requests
 from contextlib import closing
-import requests
 from type_logic import get_pokemon
 import time
 from config import db_path
@@ -52,6 +51,8 @@ def add_pokemon_to_db():
         print("SUCCESSFULLY ADDED ID: " + str(i))
     print("COMPLETED")
 
-create_pokemon_table()
-#add_pokemon_to_db()
-create_type_sheet()
+
+if __name__ == "__main__":
+    create_pokemon_table()
+    #add_pokemon_to_db()
+    create_type_sheet()
