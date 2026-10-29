@@ -34,7 +34,7 @@ def get_pokemon(name):
                 return PokemonNotFound("Pokemon not found", 404)
             if req.status_code == 422:
                 return PokemonNotFound("Name validation errror", 422)
-            raise requests.exceptions.HTTPError(f"HTTP error occured: {e}")
+            return PokemonNotFound("Something went wrong", req.status_code)
 
 
         data = req.json()
