@@ -18,5 +18,5 @@ In `type_logic.py`, edit the `test` variable at the bottom of the file. Change t
 To launch the application locally, run:
 
 ```bash
-fastapi dev main.py
+fastapi dev backend/main.py
 ```
