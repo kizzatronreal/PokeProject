@@ -1,5 +1,4 @@
 import sqlite3
-import json
 import requests
 from contextlib import closing
 from config import db_path
