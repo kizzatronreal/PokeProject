@@ -1,9 +1,12 @@
 from fastapi import FastAPI, Path, HTTPException
 import type_logic as tl
 from typing import Annotated
+from fastapi.staticfiles import StaticFiles
+from config import frontend_path
 
     
 app = FastAPI()
+
 
 #helper
 def read_pokemon_multipliers(pokemon_type_info):
@@ -28,4 +31,5 @@ def read_pokemon_type_info(pokemon_name: Annotated[str, Path(min_length=1, max_l
     type1, type2 = pokemon_type_info
     return {"types": pokemon_type_info, "type1": type1, "type2": type2, "multipliers": read_pokemon_multipliers(pokemon_type_info)}
 
+app.mount("/static", StaticFiles(directory=str(frontend_path), html=True), name="static")
 
