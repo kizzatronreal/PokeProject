@@ -3,9 +3,16 @@ import type_logic as tl
 from typing import Annotated
 from fastapi.staticfiles import StaticFiles
 from config import frontend_path
+from setup_db import create_pokemon_table, create_type_sheet
+from contextlib import asynccontextmanager
 
-    
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    create_pokemon_table()
+    create_type_sheet()
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 
 #helper

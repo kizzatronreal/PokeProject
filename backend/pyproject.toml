@@ -1,0 +1,17 @@
+[project]
+name = "PokeProject"
+version = "0.1.0"
+description = "PokeProject API"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]",
+]
+
+[tool.setuptools]
+py-modules = ["config", "main", "setup_db", "type_logic"]
+
+[tool.uv]
+package = false
+
+[tool.fastapi]
+entrypoint = "main:app"
