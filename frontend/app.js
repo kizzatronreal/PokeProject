@@ -1,25 +1,37 @@
 userPokemon = document.getElementById("userpokemon");
-
-userPokemon.addEventListener("keydown", function(event){
-    if (event.key === "Enter"){
-        console.log(fetchPokemonData(this.value))
-    }
-})
+pokemonInfo = document.getElementById("pokemoninfo");
 
 
-async function fetchPokemonData(userPokemon) {
+async function fetchPokemonTypeJson(userPokemon) {
     try {
         const response = await fetch (`https://pokeproject-9ac55514.fastapicloud.dev/api/pokemon/${userPokemon}/typeinfo`);
 
         if (!response.ok){
-            throw new Error(`HTTP ERROR! Status: ${response.status}`)
+            throw new Error(`HTTP ERROR! Status: ${response.status}`);
         }
-        const data = await response.json()
-        return data
+        return response.json();
     } catch(error) {
         console.error('Fetch failed:', error);
     }
 }
-let pokemonData = userPokemon;
 
-console.log(pokemonData)
+userPokemon.addEventListener("keydown", async function(event){
+    if (event.key === "Enter"){
+        try{
+            const pokemonData = await fetchPokemonTypeJson(this.value);
+            const multipliers = getPokemonMultiplierData(pokemonData);
+            setPokemonInfo(multipliers);
+        } catch (error){
+            console.log(error);
+        }
+    }
+})
+
+function setPokemonInfo(data){
+    pokemonInfo.textContent = data.normal;
+}
+
+
+function getPokemonMultiplierData(data){
+    return data.multipliers; 
+}
