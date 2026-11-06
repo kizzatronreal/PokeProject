@@ -5,6 +5,8 @@ from fastapi.staticfiles import StaticFiles
 from config import frontend_path
 from setup_db import create_pokemon_table, create_type_sheet
 from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -14,6 +16,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:8000", "https://pokeproject-9ac55514.fastapicloud.dev"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 #helper
 def read_pokemon_multipliers(pokemon_type_info):
