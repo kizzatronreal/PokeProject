@@ -1,5 +1,5 @@
 userPokemon = document.getElementById("userpokemon");
-pokemonInfo = document.getElementById("pokemoninfo");
+pokemonInfo = document.getElementsByClassName("multipliers");
 
 
 async function fetchPokemonTypeJson(userPokemon) {
@@ -28,7 +28,8 @@ userPokemon.addEventListener("keydown", async function(event){
 })
 
 function setPokemonInfo(data){
-    pokemonInfo.textContent = data.normal;
+    const fire = document.getElementById("fire")
+    fire.innerText = data.fire
 }
 
 
