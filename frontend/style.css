@@ -1,0 +1,15 @@
+.multipliers {
+  table-layout: fixed;
+}
+
+.multipliers th {
+  width: 40px;
+}
+
+.multipliers th img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+
