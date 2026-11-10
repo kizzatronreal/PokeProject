@@ -17,7 +17,7 @@ async function fetchPokemonTypeJson(userPokemon) {
 
 userPokemon.addEventListener("keydown", async function(event){
     if (event.key === "Enter"){
-        try{
+        try {
             const pokemonData = await fetchPokemonTypeJson(this.value);
             const multipliers = getPokemonMultiplierData(pokemonData);
             setPokemonInfo(multipliers);
@@ -28,8 +28,15 @@ userPokemon.addEventListener("keydown", async function(event){
 })
 
 function setPokemonInfo(data){
-    const fire = document.getElementById("fire")
-    fire.innerText = data.fire
+    for (const [key, value] of Object.entries(data)){
+        try {
+            const typeData = document.getElementById(key)
+            typeData.innerText = value
+            console.log("SUCCESS!")
+        } catch (error){
+            console.log(error)
+        }
+    }
 }
 
 
