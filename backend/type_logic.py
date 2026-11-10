@@ -31,7 +31,7 @@ def get_pokemon(name):
             req.raise_for_status()
         except requests.exceptions.HTTPError as e:
             if req.status_code == 404:
-                raise PokemonNotFound("Pokemon not found", 404)
+                raise PokemonNotFound(f"Pokemon: {n} not found", 404)
             if req.status_code == 422:
                 raise PokemonNotFound("Name validation errror", 422)
             raise PokemonNotFound("Something went wrong", req.status_code)
@@ -123,6 +123,8 @@ def create_pokemon_table():
     with closing(sqlite3.connect(db_path)) as conn:
         cur = conn.cursor()
         cur.execute("CREATE TABLE IF NOT EXISTS pokemon (name TEXT PRIMARY KEY, id INT NOT NULL UNIQUE, type1 TEXT, type2 TEXT)")
+
+
 
 if __name__ == "__main__":
     
