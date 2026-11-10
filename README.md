@@ -20,3 +20,4 @@ To launch the application locally, run:
 ```bash
 fastapi dev backend/main.py
 ```
+Then add /static to the local url
