@@ -39,10 +39,11 @@ def add_pokemon_names_to_dict(query, names):
 @app.get("/api/pokemon/{pokemon_name}")
 def read_pokemon_name(pokemon_name: Annotated[PokemonName, Path()]):
     try:
-        pokemon_info = tl.get_pokemon(pokemon_name) #used to ensure valid name
+        pokemon_type_info = tl.get_pokemon(pokemon_name) #used to ensure valid name
     except tl.PokemonNotFound as e:
         raise HTTPException(status_code = e.error_code, detail = e.message)
-    return {"name": pokemon_name.lower(), "id": tl.get_pokemon_id(pokemon_name)}
+    type1, type2 = pokemon_type_info
+    return {"name": pokemon_name.lower(), "id": tl.get_pokemon_id(pokemon_name), "types": pokemon_type_info, "type1": type1, "type2": type2, "multipliers": read_pokemon_multipliers(pokemon_type_info)}
 
 @app.get("/api/pokemon/{pokemon_name}/typeinfo")
 def read_pokemon_type_info(pokemon_name: Annotated[PokemonName, Path()]):
@@ -54,10 +55,10 @@ def read_pokemon_type_info(pokemon_name: Annotated[PokemonName, Path()]):
     return {"types": pokemon_type_info, "type1": type1, "type2": type2, "multipliers": read_pokemon_multipliers(pokemon_type_info)}
 
 @app.get("/api/teamanalyzer/")
-def test_pokemon_teams(q: Annotated[list[PokemonName], Query()]):
+def test_pokemon_teams(name: Annotated[list[PokemonName], Query()]):
     query_items = {}
     try:
-        add_pokemon_names_to_dict(query_items, q)
+        add_pokemon_names_to_dict(query_items, name)
     except tl.PokemonNotFound as e:
         raise HTTPException(status_code = e.error_code, detail = e.message)
     return query_items
