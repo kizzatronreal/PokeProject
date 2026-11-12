@@ -22,20 +22,22 @@ userPokemon.addEventListener("keydown", async function(event){
             const pokemonName = pokemonData.name;
             const multipliers = pokemonData.multipliers;
             createPokemonHtml(pokemonName);
-            setPokemonInfo(multipliers);
+            setPokemonInfo(multipliers, pokemonName);
         } catch (error){
             console.log(error);
         }
     }
 })
 
-function setPokemonInfo(data){
-    const typeName = document.getElementsByClassName("type-image");
-    const typeMultiplier = document.getElementsByClassName("effectiveness");
+function setPokemonInfo(data, pname){
+    const typeName = document.querySelectorAll('[class="type-image"]');
+    const typeMultiplier = document.querySelectorAll('[class="effectiveness"]');
     for (const [i, [key, value]] of Object.entries(data).entries()){
         try {
             typeName[i].innerText = key;
             typeMultiplier[i].innerText = value;
+            typeName[i].classList.add(pname);
+            typeMultiplier[i].classList.add(pname);
             console.log("SUCCESS!");
         } catch (error){
             console.log(error)
