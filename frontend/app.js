@@ -1,33 +1,59 @@
 userPokemon = document.getElementById("userpokemon");
+userPokemonBtn = document.getElementById("userbtn");
 pokemonInfo = document.getElementsByClassName("multipliers");
 
 
 async function fetchPokemonTypeJson(userPokemon) {
     try {
-        const response = await fetch (`http://127.0.0.1:8000/api/pokemon/${userPokemon}`);
+        const response = await fetch (`/api/pokemon/${userPokemon}`);
 
         if (!response.ok){
             throw new Error(`HTTP ERROR! Status: ${response.status}`);
         }
         return response.json();
     } catch(error) {
-        console.error('Fetch failed:', error);
+        console.error("Fetch failed:", error);
     }
 }
 
-userPokemon.addEventListener("keydown", async function(event){
-    if (event.key === "Enter"){
-        try {
-            const pokemonData = await fetchPokemonTypeJson(this.value);
-            const pokemonName = pokemonData.name;
-            const multipliers = pokemonData.multipliers;
-            createPokemonHtml(pokemonName);
-            setPokemonInfo(multipliers, pokemonName);
-        } catch (error){
-            console.log(error);
-        }
+async function fetchPokemonTeamTypeJson(userPokemonList){
+    const params = new URLSearchParams();
+    for (const name of userPokemonList){
+        params.append("names", name);
     }
-})
+    try {
+        const response = await fetch (`/api/teamanalyzer/?${params.toString()}`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP ERROR! Status: ${response.status}`)
+        }
+        return response.json()
+    } catch(error) {
+        console.error("Fetch failed:", error)
+    }
+}
+
+async function pokemonHandler(pname){
+    try {
+        const pokemonData = await fetchPokemonTypeJson(pname);
+        const pokemonName = pokemonData.name;
+        const multipliers = pokemonData.multipliers;
+        createPokemonHtml(pokemonName);
+        setPokemonInfo(multipliers, pokemonName);
+    } catch (error){
+        console.log(error);
+    }
+}
+
+async function pokemonTeamHandler(pokemonList) {
+    try {
+        const pokemonTeamData = await fetchPokemonTeamTypeJson(pokemonList);
+        console.log(pokemonTeamData);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 
 function setPokemonInfo(data, pname){
     const typeName = document.querySelectorAll('[class="type-image"]');
@@ -94,3 +120,15 @@ function createPokemonTypingHtml(cardBody) {
 }
 
 
+userPokemon.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        pokemonHandler(this.value)
+    }
+})
+
+userPokemonBtn.addEventListener("click", function() {
+    pokemonName = userPokemon.value;
+    pokemonHandler(pokemonName);
+});
+
+console.log(pokemonTeamHandler(["charmander", "squirtle"]));
