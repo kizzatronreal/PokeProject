@@ -55,10 +55,10 @@ def read_pokemon_type_info(pokemon_name: Annotated[PokemonName, Path()]):
     return {"types": pokemon_type_info, "type1": type1, "type2": type2, "multipliers": read_pokemon_multipliers(pokemon_type_info)}
 
 @app.get("/api/teamanalyzer/")
-def test_pokemon_teams(name: Annotated[list[PokemonName], Query()]):
+def test_pokemon_teams(names: Annotated[list[PokemonName], Query()]):
     query_items = {}
     try:
-        add_pokemon_names_to_dict(query_items, name)
+        add_pokemon_names_to_dict(query_items, names)
     except tl.PokemonNotFound as e:
         raise HTTPException(status_code = e.error_code, detail = e.message)
     return query_items
