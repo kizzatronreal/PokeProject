@@ -4,7 +4,7 @@ pokemonInfo = document.getElementsByClassName("multipliers");
 
 async function fetchPokemonTypeJson(userPokemon) {
     try {
-        const response = await fetch (`https://pokeproject-9ac55514.fastapicloud.dev/api/pokemon/${userPokemon}`);
+        const response = await fetch (`http://127.0.0.1:8000/api/pokemon/${userPokemon}`);
 
         if (!response.ok){
             throw new Error(`HTTP ERROR! Status: ${response.status}`);
@@ -20,9 +20,9 @@ userPokemon.addEventListener("keydown", async function(event){
         try {
             const pokemonData = await fetchPokemonTypeJson(this.value);
             const pokemonName = pokemonData.name;
-            const multipliers = getPokemonMultiplierData(pokemonData);
-            //setPokemonInfo(multipliers);
+            const multipliers = pokemonData.multipliers;
             createPokemonHtml(pokemonName);
+            setPokemonInfo(multipliers);
         } catch (error){
             console.log(error);
         }
@@ -30,11 +30,13 @@ userPokemon.addEventListener("keydown", async function(event){
 })
 
 function setPokemonInfo(data){
-    for (const [key, value] of Object.entries(data)){
+    const typeName = document.getElementsByClassName("type-image");
+    const typeMultiplier = document.getElementsByClassName("effectiveness");
+    for (const [i, [key, value]] of Object.entries(data).entries()){
         try {
-            const typeData = document.getElementById(key)
-            typeData.innerText = value
-            console.log("SUCCESS!")
+            typeName[i].innerText = key;
+            typeMultiplier[i].innerText = value;
+            console.log("SUCCESS!");
         } catch (error){
             console.log(error)
         }
@@ -60,7 +62,7 @@ function createPokemonHtml(pname){
     document.body.appendChild(card);
 }
 
-function createPokemonTypingHtml(cardBody){
+function createPokemonTypingHtml(cardBody) {
     const table1 = document.createElement("table");
     table1.classList.add("multipliers");
     const table1Body = document.createElement("tbody");
@@ -68,20 +70,21 @@ function createPokemonTypingHtml(cardBody){
     const table2 = document.createElement("table");
     table2.classList.add("multipliers");
     const table2Body = document.createElement("tbody");
-    for (let i = 0; i < 2; i++){
-        const row = document.createElement("tr");
-        for (let j = 0; j < 9; j++){
-            const header = document.createElement("th");
-            if (i === 1){
-                header.classList.add("effectiveness");
-            } else {
-                header.classList.add("type-image");
+
+    for (let i = 0; i < 2; i++) {
+        for (const tableBody of [table1Body, table2Body]) {
+            const row = document.createElement("tr");
+
+            for (let j = 0; j < 9; j++) {
+                const header = document.createElement("th");
+                header.classList.add(i === 1 ? "effectiveness" : "type-image");
+                row.appendChild(header);
             }
-            row.appendChild(header);
+
+            tableBody.appendChild(row);
         }
-        table1Body.appendChild(row);
-        table2Body.appendChild(row);
     }
+
     table1.appendChild(table1Body);
     table2.appendChild(table2Body);
     cardBody.appendChild(table1);
@@ -89,6 +92,3 @@ function createPokemonTypingHtml(cardBody){
 }
 
 
-function getPokemonMultiplierData(data){
-    return data.multipliers; 
-}
