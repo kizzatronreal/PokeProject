@@ -1,7 +1,8 @@
-userPokemon = document.getElementById("userpokemon");
-userPokemonBtn = document.getElementById("userbtn");
-pokemonInfo = document.getElementsByClassName("multipliers");
-pokemonError = document.getElementById("error-pokemon")
+const userPokemon = document.getElementById("userpokemon");
+const userPokemonBtn = document.getElementById("userbtn");
+const pokemonError = document.getElementById("error-pokemon")
+
+let team = [];
 
 async function fetchPokemonTypeJson(userPokemon) {
     try {
@@ -12,8 +13,6 @@ async function fetchPokemonTypeJson(userPokemon) {
         }
         return response.json();
     } catch(error) {
-        pokemonError.textContent = "Invalid Pokemon Name!";
-        pokemonError.hidden = false;
         console.error("Fetch failed:", error);
     }
 }
@@ -39,11 +38,14 @@ async function pokemonHandler(pname){
     try {
         pokemonError.hidden = true;
         const pokemonData = await fetchPokemonTypeJson(pname);
-        const pokemonName = pokemonData.name;
-        const multipliers = pokemonData.multipliers;
-        if (pokemonInfo.length < 12) {
-            createPokemonHtml(pokemonName);
-            setPokemonInfo(multipliers, pokemonName);
+        if (pokemonData == undefined) {
+            pokemonError.textContent = "Invalid Pokemon Name!";
+            pokemonError.hidden = false;
+            return;
+        }
+        if (team.length < 6) {
+            team.push(pokemonData);
+            renderTeam(team);
         } else {
             pokemonError.textContent = "Already have added 6 pokemon to analyze";
             pokemonError.hidden = false;
@@ -63,23 +65,16 @@ async function pokemonTeamHandler(pokemonList) {
 }
 
 
-function setPokemonInfo(data, pname){
-    const typeName = document.querySelectorAll('[class="type-image"]');
-    const typeMultiplier = document.querySelectorAll('[class="effectiveness"]');
-    for (const [i, [key, value]] of Object.entries(data).entries()){
-        try {
-            typeName[i].innerText = key;
-            typeMultiplier[i].innerText = value;
-            typeName[i].classList.add(pname);
-            typeMultiplier[i].classList.add(pname);
-            console.log("SUCCESS!");
-        } catch (error){
-            console.log(error)
-        }
+function renderTeam(team){
+    const pokemonTeam = document.getElementById("team");
+    pokemonTeam.replaceChildren();
+    for (const pokemon of team){
+        const pCard = createPokemonCard(pokemon);
+        pokemonTeam.appendChild(pCard);
     }
 }
 
-function createPokemonHtml(pname){
+function createPokemonCard(pData){
     const card = document.createElement("div");
     card.classList.add("card");
     const img = document.createElement("img");
@@ -89,16 +84,22 @@ function createPokemonHtml(pname){
     cardBody.classList.add("card-body")
     const cardTitle = document.createElement("h5");
     cardTitle.classList.add("card-title");
-    cardTitle.innerText = pname;
+    cardTitle.innerText = pData.name;
+    const deleteBtn = document.createElement("button");
+    deleteBtn.classList.add("delete");
+    deleteBtn.textContent= "Remove";
 
     cardBody.appendChild(cardTitle);
-    createPokemonTypingHtml(cardBody);
+    const [pTypeNames, pTypeMultipliers] = createPokemonTypingTable(pData);
+    cardBody.appendChild(pTypeNames);
+    cardBody.appendChild(pTypeMultipliers);
     card.appendChild(img);
     card.appendChild(cardBody);
-    document.body.appendChild(card);
+    card.appendChild(deleteBtn);
+    return card;
 }
 
-function createPokemonTypingHtml(cardBody) {
+function createPokemonTypingTable(pData) {
     const table1 = document.createElement("table");
     table1.classList.add("multipliers");
     const table1Body = document.createElement("tbody");
@@ -107,24 +108,36 @@ function createPokemonTypingHtml(cardBody) {
     table2.classList.add("multipliers");
     const table2Body = document.createElement("tbody");
 
+    let count = 0;
     for (let i = 0; i < 2; i++) {
+        count = 0;
         for (const tableBody of [table1Body, table2Body]) {
             const row = document.createElement("tr");
 
             for (let j = 0; j < 9; j++) {
                 const header = document.createElement("th");
-                header.classList.add(i === 1 ? "effectiveness" : "type-image");
+                if (i === 1) {
+                    header.classList.add("effectiveness");
+                    pMultiplier = Object.values(pData.multipliers)[j + count];
+                    header.innerText = pMultiplier;
+                } else {
+                    header.classList.add("type-image");
+                    pTypeName = Object.keys(pData.multipliers)[j + count];
+                    header.innerText = pTypeName;
+                }
                 row.appendChild(header);
             }
 
             tableBody.appendChild(row);
+            count = 9;
         }
     }
 
+
+
     table1.appendChild(table1Body);
     table2.appendChild(table2Body);
-    cardBody.appendChild(table1);
-    cardBody.appendChild(table2);
+    return [table1, table2];
 }
 
 
@@ -139,4 +152,17 @@ userPokemonBtn.addEventListener("click", function() {
     pokemonHandler(pokemonName);
 });
 
-console.log(pokemonTeamHandler(["charmander", "squirtle"]));
+document.addEventListener("click", function(event){
+    const button = event.target.closest("button.delete");
+    if (event.target.matches("button.delete")){
+        const parent = button.parentElement;
+        const body = parent.querySelector(":scope > .card-body")
+        const pokeToDelete = body.querySelector(":scope > .card-title");
+
+        const updatedTeam = team.filter(p => p.name !== pokeToDelete.innerText);
+        team = updatedTeam;
+        renderTeam(team);
+        console.log("WORKING!")
+    }
+})
+
