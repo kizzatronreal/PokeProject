@@ -1,7 +1,7 @@
 userPokemon = document.getElementById("userpokemon");
 userPokemonBtn = document.getElementById("userbtn");
 pokemonInfo = document.getElementsByClassName("multipliers");
-
+pokemonError = document.getElementById("error-pokemon")
 
 async function fetchPokemonTypeJson(userPokemon) {
     try {
@@ -12,6 +12,8 @@ async function fetchPokemonTypeJson(userPokemon) {
         }
         return response.json();
     } catch(error) {
+        pokemonError.textContent = "Invalid Pokemon Name!";
+        pokemonError.hidden = false;
         console.error("Fetch failed:", error);
     }
 }
@@ -35,11 +37,17 @@ async function fetchPokemonTeamTypeJson(userPokemonList){
 
 async function pokemonHandler(pname){
     try {
+        pokemonError.hidden = true;
         const pokemonData = await fetchPokemonTypeJson(pname);
         const pokemonName = pokemonData.name;
         const multipliers = pokemonData.multipliers;
-        createPokemonHtml(pokemonName);
-        setPokemonInfo(multipliers, pokemonName);
+        if (pokemonInfo.length < 12) {
+            createPokemonHtml(pokemonName);
+            setPokemonInfo(multipliers, pokemonName);
+        } else {
+            pokemonError.textContent = "Already have added 6 pokemon to analyze";
+            pokemonError.hidden = false;
+        }
     } catch (error){
         console.log(error);
     }
