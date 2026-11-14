@@ -9,6 +9,16 @@ async function fetchPokemonTypeJson(userPokemon) {
         const response = await fetch (`/api/pokemon/${userPokemon}`);
 
         if (!response.ok){
+            if (response.status === 404){
+                pokemonError.textContent = "Pokemon Not Found";
+                pokemonError.hidden = false;
+            } else if (response.status === 422) {
+                pokemonError.textContent = "Invalid Pokemon Name";
+                pokemonError.hidden = false;
+            } else {
+                pokemonError.textContent = "Try again later";
+                pokemonError.hidden = false;
+            }
             throw new Error(`HTTP ERROR! Status: ${response.status}`);
         }
         return response.json();
@@ -37,9 +47,10 @@ async function fetchPokemonTeamTypeJson(userPokemonList){
 async function pokemonHandler(pname){
     try {
         pokemonError.hidden = true;
-        const pokemonData = await fetchPokemonTypeJson(pname);
-        if (pokemonData == undefined) {
-            pokemonError.textContent = "Invalid Pokemon Name!";
+        const pokemonData = await fetchPokemonTypeJson(pname.toLowerCase().trim());
+        if (pokemonData === undefined) return;
+        if (team.some(pData => pData.name === pokemonData.name)){
+            pokemonError.textContent = "No Duplicate Pokemon Allowed!";
             pokemonError.hidden = false;
             return;
         }
@@ -79,7 +90,7 @@ function createPokemonCard(pData){
     card.classList.add("card");
     const img = document.createElement("img");
     img.classList.add("card-img-top");
-    img.src = "";
+    img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pData.id}.png`;
     const cardBody = document.createElement("div");
     cardBody.classList.add("card-body")
     const cardTitle = document.createElement("h5");
@@ -88,6 +99,7 @@ function createPokemonCard(pData){
     const deleteBtn = document.createElement("button");
     deleteBtn.classList.add("delete");
     deleteBtn.textContent= "Remove";
+    deleteButton(deleteBtn);
 
     cardBody.appendChild(cardTitle);
     const [pTypeNames, pTypeMultipliers] = createPokemonTypingTable(pData);
@@ -118,11 +130,11 @@ function createPokemonTypingTable(pData) {
                 const header = document.createElement("th");
                 if (i === 1) {
                     header.classList.add("effectiveness");
-                    pMultiplier = Object.values(pData.multipliers)[j + count];
+                    const pMultiplier = Object.values(pData.multipliers)[j + count];
                     header.innerText = pMultiplier;
                 } else {
                     header.classList.add("type-image");
-                    pTypeName = Object.keys(pData.multipliers)[j + count];
+                    const pTypeName = Object.keys(pData.multipliers)[j + count];
                     header.innerText = pTypeName;
                 }
                 row.appendChild(header);
@@ -140,6 +152,19 @@ function createPokemonTypingTable(pData) {
     return [table1, table2];
 }
 
+function deleteButton(btn){
+    btn.addEventListener("click", function() {
+        const parent = this.parentElement;
+        const body = parent.querySelector(":scope > .card-body")
+        const pokeToDelete = body.querySelector(":scope > .card-title");
+
+        const updatedTeam = team.filter(p => p.name !== pokeToDelete.innerText);
+        team = updatedTeam;
+        renderTeam(team);
+        console.log("WORKING!")
+    })
+}
+
 
 userPokemon.addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
@@ -148,21 +173,9 @@ userPokemon.addEventListener("keydown", function(event) {
 })
 
 userPokemonBtn.addEventListener("click", function() {
-    pokemonName = userPokemon.value;
+    const pokemonName = userPokemon.value;
     pokemonHandler(pokemonName);
 });
 
-document.addEventListener("click", function(event){
-    const button = event.target.closest("button.delete");
-    if (event.target.matches("button.delete")){
-        const parent = button.parentElement;
-        const body = parent.querySelector(":scope > .card-body")
-        const pokeToDelete = body.querySelector(":scope > .card-title");
 
-        const updatedTeam = team.filter(p => p.name !== pokeToDelete.innerText);
-        team = updatedTeam;
-        renderTeam(team);
-        console.log("WORKING!")
-    }
-})
 
