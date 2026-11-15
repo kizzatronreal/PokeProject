@@ -2,9 +2,9 @@ import sqlite3
 import requests
 from contextlib import closing
 from type_logic import get_pokemon
-import time
-from config import db_path
-
+from config import db_path, pokemon_db_csv_path
+import csv
+from pathlib import Path
 
 def create_type_sheet():
     with closing(sqlite3.connect(db_path)) as conn:
@@ -41,18 +41,15 @@ def create_pokemon_table():
 
 #you don't need to run this if you don't want to, as the get_pokemon() in type_logic.py implements lazy caching
 def add_pokemon_to_db():
-    req = requests.get("http://pokeapi.co/api/v2/pokemon")
-    pokemoun_count = req.json()["count"]
-    for i in range(1, pokemoun_count):
-        pokemon_req = requests.get(f"http://pokeapi.co/api/v2/pokemon/{i}", timeout=20)
-        pokemon = pokemon_req.json()["name"]
-        get_pokemon(pokemon)
-        time.sleep(0.4)
-        print("SUCCESSFULLY ADDED ID: " + str(i))
-    print("COMPLETED")
+    with open(pokemon_db_csv_path, newline="") as f, closing(sqlite3.connect(db_path)) as conn:
+        rows = [(r["name"], int(r["id"]), r["type1"], r["type2"] or None)
+        for r in csv.DictReader(f)]
+        conn.executemany("INSERT OR IGNORE INTO pokemon VALUES (?, ?, ?, ?)", rows)
+        conn.commit()
+    
 
 
 if __name__ == "__main__":
     create_pokemon_table()
-    #add_pokemon_to_db()
+    add_pokemon_to_db()
     create_type_sheet()
