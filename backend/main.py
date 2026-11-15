@@ -3,7 +3,7 @@ import type_logic as tl
 from typing import Annotated, TypeAlias
 from fastapi.staticfiles import StaticFiles
 from config import frontend_path
-from setup_db import create_pokemon_table, create_type_sheet
+from setup_db import create_pokemon_table, create_type_sheet, add_pokemon_to_db
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import StringConstraints
@@ -11,6 +11,7 @@ from pydantic import StringConstraints
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_pokemon_table()
+    add_pokemon_to_db()
     create_type_sheet()
     yield
 
