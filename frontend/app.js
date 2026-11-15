@@ -29,11 +29,12 @@ async function fetchPokemonTypeJson(userPokemon) {
 
 async function fetchPokemonTeamTypeJson(userPokemonList){
     const params = new URLSearchParams();
-    for (const name of userPokemonList){
-        params.append("names", name);
+    for (const pokemon of userPokemonList){
+        params.append("names", pokemon.name);
     }
+    console.log(params.toString())
     try {
-        const response = await fetch (`/api/teamanalyzer/?${params.toString()}`);
+        const response = await fetch (`/api/team/analyze?${params.toString()}`);
 
         if (!response.ok) {
             throw new Error(`HTTP ERROR! Status: ${response.status}`)
@@ -44,25 +45,30 @@ async function fetchPokemonTeamTypeJson(userPokemonList){
     }
 }
 
-async function pokemonHandler(pname){
+async function pokemonHandler(pname) {
     try {
         pokemonError.hidden = true;
         const pokemonData = await fetchPokemonTypeJson(pname.toLowerCase().trim());
-        if (pokemonData === undefined) return;
-        if (team.some(pData => pData.name === pokemonData.name)){
+        if (pokemonData === undefined) return false;
+
+        if (team.some(pData => pData.name === pokemonData.name)) {
             pokemonError.textContent = "No Duplicate Pokemon Allowed!";
             pokemonError.hidden = false;
-            return;
+            return false;
         }
-        if (team.length < 6) {
-            team.push(pokemonData);
-            renderTeam(team);
-        } else {
+
+        if (team.length >= 6) {
             pokemonError.textContent = "Already have added 6 pokemon to analyze";
             pokemonError.hidden = false;
+            return false;
         }
-    } catch (error){
-        console.log(error);
+
+        team.push(pokemonData);
+        renderTeam(team);
+        return true;
+    } catch (error) {
+        console.error(error);
+        return false;
     }
 }
 
@@ -166,15 +172,23 @@ function deleteButton(btn){
 }
 
 
-userPokemon.addEventListener("keydown", function(event) {
+userPokemon.addEventListener("keydown", async function(event) {
     if (event.key === "Enter") {
-        pokemonHandler(this.value)
+        added = await pokemonHandler(this.value)
+        if (added) {
+            pokemonTeamHandler(team);
+        }
     }
 })
 
-userPokemonBtn.addEventListener("click", function() {
+userPokemonBtn.addEventListener("click", async function() {
     const pokemonName = userPokemon.value;
-    pokemonHandler(pokemonName);
+    added = await pokemonHandler(pokemonName);
+    console.log(team)
+    if (added){
+        pokemonTeamHandler(team);
+    }
+
 });
 
 
