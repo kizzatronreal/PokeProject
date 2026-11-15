@@ -55,13 +55,15 @@ def read_pokemon_type_info(pokemon_name: Annotated[PokemonName, Path()]):
     type1, type2 = pokemon_type_info
     return {"types": pokemon_type_info, "type1": type1, "type2": type2, "multipliers": read_pokemon_multipliers(pokemon_type_info)}
 
-@app.get("/api/teamanalyzer/")
+@app.get("/api/team/analyze")
 def test_pokemon_teams(names: Annotated[list[PokemonName], Query()]):
     query_items = {}
     try:
         add_pokemon_names_to_dict(query_items, names)
+        new_dict = tl.calculate_team_weakness(query_items)
     except tl.PokemonNotFound as e:
         raise HTTPException(status_code = e.error_code, detail = e.message)
+    query_items["team_weakness"] = new_dict
     return query_items
 
 
