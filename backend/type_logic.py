@@ -119,19 +119,17 @@ def calculate_typings(types):
         output.append(multiplied_value)
     return dict(zip(pokemon_types, output))
 
-def create_pokemon_table():
-    with closing(sqlite3.connect(db_path)) as conn:
-        cur = conn.cursor()
-        cur.execute("CREATE TABLE IF NOT EXISTS pokemon (name TEXT PRIMARY KEY, id INT NOT NULL UNIQUE, type1 TEXT, type2 TEXT)")
-
+def calculate_team_weakness(team):
+    base_multiplier_list = [0] * len(pokemon_types)
+    new_dict = dict(zip(pokemon_types, base_multiplier_list))
+    for multipliers in team.values():
+        for key, value in multipliers.items():
+            new_dict[key] += value
+    return new_dict
 
 
 if __name__ == "__main__":
-    
     test = calculate_typings(get_type_information(get_pokemon("charmander")))
 
-    print(test)
-
-
-
+    #print(test)
 
