@@ -5,6 +5,19 @@ const pokemonError = document.getElementById("error-pokemon")
 
 let team = [];
 
+async function fetchAllPokemonNames() {
+    try {
+        const response = await fetch ("/api/pokemon/");
+        if (!response.ok){
+            throw new Error(`HTTP ERROR! Status: ${response.status}`);
+        }
+        return await response.json();
+
+    } catch(error) {
+        console.error("Fetch failed:", error);
+    }
+}
+
 async function fetchPokemonTypeJson(userPokemon) {
     try {
         const response = await fetch (`/api/pokemon/${userPokemon}`);
@@ -44,6 +57,11 @@ async function fetchPokemonTeamTypeJson(userPokemonList){
     } catch(error) {
         console.error("Fetch failed:", error)
     }
+}
+
+async function showPokemonNames() {
+    const data = await fetchAllPokemonNames();
+    return data;
 }
 
 async function pokemonHandler(pname) {
@@ -188,6 +206,17 @@ function deleteButton(btn){
     })
 }
 
+function populateDataList(){
+    dataList = document.getElementById("suggestions");
+    showPokemonNames().then(data => {
+        names = data.names;
+        for (const n of names){
+            option = document.createElement("option");
+            option.value = n;
+            dataList.append(option);
+        }
+    })
+}
 
 userPokemon.addEventListener("keydown", async function(event) {
     if (event.key === "Enter") {
@@ -208,5 +237,4 @@ userAddTeamBtn.addEventListener("click", async function() {
     pokemonTeamHandler(team);
 })
 
-
-
+populateDataList();
