@@ -1,5 +1,6 @@
 const userPokemon = document.getElementById("userpokemon");
 const userPokemonBtn = document.getElementById("userbtn");
+const userAddTeamBtn = document.getElementById("addteam")
 const pokemonError = document.getElementById("error-pokemon")
 
 let team = [];
@@ -30,7 +31,7 @@ async function fetchPokemonTypeJson(userPokemon) {
 async function fetchPokemonTeamTypeJson(userPokemonList){
     const params = new URLSearchParams();
     for (const pokemon of userPokemonList){
-        params.append("names", pokemon.name);
+        params.append("names", pokemon.name.toLowerCase().trim());
     }
     console.log(params.toString())
     try {
@@ -96,7 +97,13 @@ function createPokemonCard(pData){
     card.classList.add("card");
     const img = document.createElement("img");
     img.classList.add("card-img-top");
-    img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pData.id}.png`;
+    checkForAnimatedSprite(`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/icons/animated/${pData.id}.png`).then(isValid => {
+        if (isValid){
+            img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/icons/animated/${pData.id}.png`
+        } else {
+            img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pData.id}.png`
+        }
+    })
     const cardBody = document.createElement("div");
     cardBody.classList.add("card-body")
     const cardTitle = document.createElement("h5");
@@ -158,6 +165,16 @@ function createPokemonTypingTable(pData) {
     return [table1, table2];
 }
 
+function checkForAnimatedSprite(src){
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+
+        img.src = src
+    })
+}
+
 function deleteButton(btn){
     btn.addEventListener("click", function() {
         const parent = this.parentElement;
@@ -175,9 +192,7 @@ function deleteButton(btn){
 userPokemon.addEventListener("keydown", async function(event) {
     if (event.key === "Enter") {
         added = await pokemonHandler(this.value)
-        if (added) {
-            pokemonTeamHandler(team);
-        }
+
     }
 })
 
@@ -185,11 +200,13 @@ userPokemonBtn.addEventListener("click", async function() {
     const pokemonName = userPokemon.value;
     added = await pokemonHandler(pokemonName);
     console.log(team)
-    if (added){
-        pokemonTeamHandler(team);
-    }
+
 
 });
+
+userAddTeamBtn.addEventListener("click", async function() {
+    pokemonTeamHandler(team);
+})
 
 
 
