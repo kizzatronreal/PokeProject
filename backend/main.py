@@ -55,6 +55,14 @@ def read_pokemon_type_info(pokemon_name: Annotated[PokemonName, Path()]):
     type1, type2 = pokemon_type_info
     return {"types": pokemon_type_info, "type1": type1, "type2": type2, "multipliers": read_pokemon_multipliers(pokemon_type_info)}
 
+@app.get("/api/pokemon/")
+def read_all_pokemon_names():
+    try:
+        all_pokemon_names = tl.break_down_string_tuples(tl.fetch_all_pokemon_from_db())
+    except tl.PokemonNotFound as e:
+        raise HTTPException(status_code = e.error_code, detail = e.message)
+    return {"names": all_pokemon_names}
+
 @app.get("/api/team/analyze")
 def test_pokemon_teams(names: Annotated[list[PokemonName], Query()]):
     query_items = {}
