@@ -17,6 +17,12 @@ def fetch_pokemon_from_db(conn, name):
     row = cur.fetchone()
     return row
 
+def fetch_all_pokemon_from_db():
+    with closing(sqlite3.connect(db_path)) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT name FROM pokemon")
+        data = cur.fetchall()
+        return data
 
 def get_pokemon(name):
     n = name.strip().lower()
@@ -107,6 +113,14 @@ def break_down_tuples(tuplelist):
         output.append(indexlist)
     return output
 
+def break_down_string_tuples(tuplelist):
+    output = []
+    for tup in tuplelist:
+        for t in tup:
+            t = str(t)
+            output.append(t)
+    return output
+
 #get_type_information as param
 def calculate_typings(types):
     output = []
@@ -131,5 +145,5 @@ def calculate_team_weakness(team):
 if __name__ == "__main__":
     test = calculate_typings(get_type_information(get_pokemon("charmander")))
 
-    #print(test)
+    print(break_down_string_tuples(fetch_all_pokemon_from_db()))
 
