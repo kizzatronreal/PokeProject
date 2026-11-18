@@ -94,7 +94,7 @@ async function pokemonHandler(pname) {
 async function pokemonTeamHandler(pokemonList) {
     try {
         const pokemonTeamData = await fetchPokemonTeamTypeJson(pokemonList);
-        console.log(pokemonTeamData);
+        return pokemonTeamData;
     } catch (error) {
         console.log(error);
     }
@@ -183,6 +183,23 @@ function createPokemonTypingTable(pData) {
     return [table1, table2];
 }
 
+function breakDownWeakestTeamTyping(teamInfo){
+    teamWeakness = []
+    for (const [key, value] of Object.entries(teamInfo.team_weakness)){
+        if (value > team.length){
+            teamWeakness.push([key, value]);
+        }
+    }
+    const sorted = teamWeakness.sort((a, b) => b[1] - a[1]);
+    return sorted;
+}
+
+function renderWeakestTeamType(){
+    const title = document.createElement("h1");
+    title.innerText = "Your Team's Main Weakness";
+
+}
+
 function checkForAnimatedSprite(src){
     return new Promise((resolve) => {
         const img = new Image();
@@ -234,7 +251,10 @@ userPokemonBtn.addEventListener("click", async function() {
 });
 
 userAddTeamBtn.addEventListener("click", async function() {
-    pokemonTeamHandler(team);
+    teamInfo = await pokemonTeamHandler(team);
+    console.log(teamInfo);
+    console.log(teamInfo.team_weakness);
+    console.log(breakDownWeakestTeamTyping(teamInfo));
 })
 
 populateDataList();
