@@ -67,6 +67,7 @@ async function showPokemonNames() {
 async function pokemonHandler(pname) {
     try {
         pokemonError.hidden = true;
+        if (pname === "" || pname === undefined) return false;
         const pokemonData = await fetchPokemonTypeJson(pname.toLowerCase().trim());
         if (pokemonData === undefined) return false;
 
@@ -94,7 +95,10 @@ async function pokemonHandler(pname) {
 async function pokemonTeamHandler(pokemonList) {
     try {
         const pokemonTeamData = await fetchPokemonTeamTypeJson(pokemonList);
-        return pokemonTeamData;
+        const oldList = document.querySelector(".defensive-coverages");
+        const oldTitle = document.getElementById("weakness-title");
+        if (oldList !== null || oldTitle !== null) oldList.remove(), oldTitle.remove();
+        renderWeakestTeamType(pokemonTeamData);
     } catch (error) {
         console.log(error);
     }
@@ -164,9 +168,12 @@ function createPokemonTypingTable(pData) {
                     const pMultiplier = Object.values(pData.multipliers)[j + count];
                     header.innerText = pMultiplier;
                 } else {
+                    const typeImg = document.createElement("img");
                     header.classList.add("type-image");
                     const pTypeName = Object.keys(pData.multipliers)[j + count];
-                    header.innerText = pTypeName;
+                    typeImg.src = `img/${pTypeName}.jpg`;
+                    typeImg.classList.add("type-image");
+                    header.appendChild(typeImg);
                 }
                 row.appendChild(header);
             }
@@ -194,10 +201,26 @@ function breakDownWeakestTeamTyping(teamInfo){
     return sorted;
 }
 
-function renderWeakestTeamType(){
+function renderWeakestTeamType(teamInfo){
+    const container = document.getElementById("team-info");
     const title = document.createElement("h1");
-    title.innerText = "Your Team's Main Weakness";
+    title.id = "weakness-title";
+    title.innerText = "Your Team's Main Defensive Weaknesses";
+    const weakestTypings = breakDownWeakestTeamTyping(teamInfo);
+    const weakestTypingsList = createPokemonWeakestTypeHtml(weakestTypings);
+    container.appendChild(title);
+    container.appendChild(weakestTypingsList);
+}
 
+function createPokemonWeakestTypeHtml(weakestTypes){
+    const list = document.createElement("ol");
+    list.classList.add("defensive-coverages");
+    for (const [typeName, value] of weakestTypes) {
+        const listItem = document.createElement("li");
+        listItem.innerText = `${typeName}: ${value}x effective`
+        list.appendChild(listItem);
+    }
+    return list;
 }
 
 function checkForAnimatedSprite(src){
@@ -251,10 +274,7 @@ userPokemonBtn.addEventListener("click", async function() {
 });
 
 userAddTeamBtn.addEventListener("click", async function() {
-    teamInfo = await pokemonTeamHandler(team);
-    console.log(teamInfo);
-    console.log(teamInfo.team_weakness);
-    console.log(breakDownWeakestTeamTyping(teamInfo));
+    pokemonTeamHandler(team);
 })
 
 populateDataList();
