@@ -95,9 +95,6 @@ async function pokemonHandler(pname) {
 async function pokemonTeamHandler(pokemonList) {
     try {
         const pokemonTeamData = await fetchPokemonTeamTypeJson(pokemonList);
-        const oldList = document.querySelector(".defensive-coverages");
-        const oldTitle = document.getElementById("weakness-title");
-        if (oldList !== null || oldTitle !== null) oldList.remove(), oldTitle.remove();
         renderWeakestTeamType(pokemonTeamData);
     } catch (error) {
         console.log(error);
@@ -191,7 +188,7 @@ function createPokemonTypingTable(pData) {
 }
 
 function breakDownWeakestTeamTyping(teamInfo){
-    teamWeakness = []
+    const teamWeakness = []
     for (const [key, value] of Object.entries(teamInfo.team_weakness)){
         if (value > team.length){
             teamWeakness.push([key, value]);
@@ -203,6 +200,7 @@ function breakDownWeakestTeamTyping(teamInfo){
 
 function renderWeakestTeamType(teamInfo){
     const container = document.getElementById("team-info");
+    container.replaceChildren();
     const title = document.createElement("h1");
     title.id = "weakness-title";
     title.innerText = "Your Team's Main Defensive Weaknesses";
@@ -247,9 +245,9 @@ function deleteButton(btn){
 }
 
 function populateDataList(){
-    dataList = document.getElementById("suggestions");
+    const dataList = document.getElementById("suggestions");
     showPokemonNames().then(data => {
-        names = data.names;
+        let names = data.names;
         for (const n of names){
             option = document.createElement("option");
             option.value = n;
@@ -260,14 +258,14 @@ function populateDataList(){
 
 userPokemon.addEventListener("keydown", async function(event) {
     if (event.key === "Enter") {
-        added = await pokemonHandler(this.value)
+        const added = await pokemonHandler(this.value)
 
     }
 })
 
 userPokemonBtn.addEventListener("click", async function() {
     const pokemonName = userPokemon.value;
-    added = await pokemonHandler(pokemonName);
+    const added = await pokemonHandler(pokemonName);
     console.log(team)
 
 
