@@ -1,0 +1,40 @@
+
+.multipliers {
+  table-layout: fixed;
+  margin-inline: auto;
+  
+}
+
+.type-image {
+  width: 30px;
+  height: 30px;
+}
+
+#team {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  overflow-x: auto;
+}
+
+.card {
+  width: 30%; 
+  padding: 1rem; 
+  border: 1px solid #ccc; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+.multipliers th {
+  width: 5px;
+}
+
+.card-img-top {
+  display: block;
+  width: 40%;
+  height: 50%;
+  align-self: center;
+}
+
+
