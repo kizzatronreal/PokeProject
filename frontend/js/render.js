@@ -30,10 +30,10 @@ export async function pokemonHandler(pname) {
     }
 }
 
-export async function pokemonTeamHandler(pokemonList) {
+async function pokemonTeamHandler(pokemonList) {
     try {
         const pokemonTeamData = await api.fetchPokemonTeamTypeJson(pokemonList);
-        renderWeakestTeamType(pokemonTeamData);
+        return pokemonTeamData;
     } catch (error) {
         console.log(error);
     }
@@ -143,6 +143,14 @@ function breakDownWeakestTeamTyping(teamInfo){
     }
     const sorted = teamWeakness.sort((a, b) => b[1] - a[1]);
     return sorted;
+}
+
+export async function updateTeamAnalysis(){
+    if (team.length === 0 || team === undefined) {
+        return;
+    }
+    const pokemonTeamData = await pokemonTeamHandler(team);
+    renderWeakestTeamType(pokemonTeamData);
 }
 
 function createPokemonWeakestTypeHtml(weakestTypes){
