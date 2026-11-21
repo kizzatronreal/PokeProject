@@ -147,6 +147,8 @@ function breakDownWeakestTeamTyping(teamInfo){
 
 export async function updateTeamAnalysis(){
     if (team.length === 0 || team === undefined) {
+        const container = document.getElementById("team-info");
+        container.replaceChildren();
         return;
     }
     const pokemonTeamData = await pokemonTeamHandler(team);
