@@ -23,6 +23,12 @@ def fetch_all_pokemon_from_db():
         cur.execute("SELECT name FROM pokemon")
         return cur.fetchall()
 
+def fetch_pokemon_from_types(type1, type2):
+    with closing(sqlite3.connect(db_path)) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT name FROM pokemon WHERE (type1 = ? AND type2 = ?) OR (type2 = ? AND type1 = ?)", (type1, type2, type1, type2))
+        return cur.fetchall()
+
 def fetch_all_pokemon_info():
     with closing(sqlite3.connect(db_path)) as conn:
         cur = conn.cursor()
@@ -170,8 +176,20 @@ def create_all_type_dicts():
         new_dict[pokemon] = calculate_typings(get_type_information_no_db((type1, type2)))
     return new_dict
 
+def get_weakest_type(team_weakness):
+    weakest_types = []
+    for key, value in team_weakness.items():
+        weakest_types.append([key, value])
+    sorted_list = sorted(weakest_types, reverse=True, key=lambda type: type[1])
+    return sorted_list[0:2]
+
+def get_pokemon_recommendations():
+    return 0
+
 if __name__ == "__main__":
     test = calculate_typings(get_type_information_no_db(get_pokemon("charizard")))
     print("BREAK")
-    print(create_all_type_dicts())
+    pokemon_names = break_down_string_tuples(fetch_pokemon_from_types("fire", "dark"))
+    pokemon_dicts = create_all_type_dicts()
+    print(pokemon_dicts[pokemon_names[0]])
 
