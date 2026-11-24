@@ -2,7 +2,7 @@ import sqlite3
 import requests
 from contextlib import closing
 from config import db_path
-
+from type_chart import defensive_chart
 class PokemonNotFound(Exception):
     def __init__(self, message, error_code=None):
         self.message = message
@@ -21,8 +21,13 @@ def fetch_all_pokemon_from_db():
     with closing(sqlite3.connect(db_path)) as conn:
         cur = conn.cursor()
         cur.execute("SELECT name FROM pokemon")
-        data = cur.fetchall()
-        return data
+        return cur.fetchall()
+
+def fetch_all_pokemon_info():
+    with closing(sqlite3.connect(db_path)) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT name, type1, type2 FROM pokemon")
+        return cur.fetchall()
 
 def get_pokemon(name):
     n = name.strip().lower()
@@ -102,6 +107,23 @@ def get_type_information(typedata):
             output.append(cur.fetchall())
     return break_down_tuples(output)
 
+def get_type_information_no_db(typedata):
+    check_if_types_allowed(typedata)
+    type1Arr = []
+    type2Arr = []
+    type1, type2 = typedata
+    for type, multiplier in defensive_chart.items():
+        if type1 == type:
+            for t in multiplier.values():
+                type1Arr.append(t)
+        if type2:
+            if type2 == type:
+                for t in multiplier.values():
+                    type2Arr.append(t)
+    if len(type2Arr) != 0:
+        return [type1Arr, type2Arr]
+    return [type1Arr]
+    
 #helper for get_type_information
 def break_down_tuples(tuplelist):
     output = []
@@ -141,9 +163,15 @@ def calculate_team_weakness(team):
             new_dict[key] += value
     return new_dict
 
+def create_all_type_dicts():
+    pokemonArr = fetch_all_pokemon_info()
+    new_dict = {}
+    for pokemon, type1, type2 in pokemonArr:
+        new_dict[pokemon] = calculate_typings(get_type_information_no_db((type1, type2)))
+    return new_dict
 
 if __name__ == "__main__":
-    test = calculate_typings(get_type_information(get_pokemon("charmander")))
-
-    print(break_down_string_tuples(fetch_all_pokemon_from_db()))
+    test = calculate_typings(get_type_information_no_db(get_pokemon("charizard")))
+    print("BREAK")
+    print(create_all_type_dicts())
 
