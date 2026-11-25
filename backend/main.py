@@ -24,7 +24,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-PokemonName: TypeAlias = Annotated[str, StringConstraints(min_length=1, max_length=23, pattern = r"^[A-Za-z-]+$")]
+PokemonName: TypeAlias = Annotated[str, StringConstraints(min_length=1, max_length=33, pattern = r"^[A-Za-z-]+$")]
+
+pokemon_names = tl.create_all_type_dicts()
 
 #helper
 def read_pokemon_multipliers(pokemon_type_info):
@@ -68,10 +70,13 @@ def test_pokemon_teams(names: Annotated[list[PokemonName], Query()]):
     query_items = {}
     try:
         add_pokemon_names_to_dict(query_items, names)
-        new_dict = tl.calculate_team_weakness(query_items)
+        team_weaknesses = tl.calculate_team_weakness(query_items)
+        weakest_types = tl.get_weakest_type(team_weaknesses)
+        pokemon_recommendations = tl.get_pokemon_recommendations(weakest_types, pokemon_names)
     except tl.PokemonNotFound as e:
         raise HTTPException(status_code = e.error_code, detail = e.message)
-    query_items["team_weakness"] = new_dict
+    query_items["team_weakness"] = team_weaknesses
+    query_items["test"] = pokemon_recommendations
     return query_items
 
 
