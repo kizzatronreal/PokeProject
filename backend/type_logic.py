@@ -183,13 +183,21 @@ def get_weakest_type(team_weakness):
     sorted_list = sorted(weakest_types, reverse=True, key=lambda type: type[1])
     return sorted_list[0:2]
 
-def get_pokemon_recommendations():
-    return 0
+def get_pokemon_recommendations(weakest_types, pokemon_dicts):
+    type1, type2 = weakest_types
+    type1_name, type1_multiplier = type1
+    type2_name, type2_multiplier = type2
+    pokemon_recommendations = set()
+    for pokemon, multipliers in pokemon_dicts.items():
+        if (multipliers.get(type1_name, float("inf")) <= 0.5 and multipliers.get(type2_name, float("inf")) <= 0.5):
+            pokemon_recommendations.add(pokemon)
+
+    return pokemon_recommendations
 
 if __name__ == "__main__":
     test = calculate_typings(get_type_information_no_db(get_pokemon("charizard")))
     print("BREAK")
     pokemon_names = break_down_string_tuples(fetch_pokemon_from_types("fire", "dark"))
-    pokemon_dicts = create_all_type_dicts()
-    print(pokemon_dicts[pokemon_names[0]])
+
+    
 
