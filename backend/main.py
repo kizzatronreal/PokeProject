@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Path, HTTPException, Query
+from fastapi import FastAPI, Path, HTTPException, Query, Request
 import type_logic as tl
 from typing import Annotated, TypeAlias
 from fastapi.staticfiles import StaticFiles
@@ -13,6 +13,7 @@ async def lifespan(app: FastAPI):
     create_pokemon_table()
     add_pokemon_to_db()
     create_type_sheet()
+    app.state.all_pokemon_multipliers = tl.create_all_type_dicts()
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -26,7 +27,6 @@ app.add_middleware(
 
 PokemonName: TypeAlias = Annotated[str, StringConstraints(min_length=1, max_length=33, pattern = r"^[A-Za-z-]+$")]
 
-pokemon_names = tl.create_all_type_dicts()
 
 #helper
 def read_pokemon_multipliers(pokemon_type_info):
@@ -66,13 +66,13 @@ def read_all_pokemon_names():
     return {"names": all_pokemon_names}
 
 @app.get("/api/team/analyze")
-def test_pokemon_teams(names: Annotated[list[PokemonName], Query()]):
+def test_pokemon_teams(names: Annotated[list[PokemonName], Query()], request: Request):
     query_items = {}
     try:
         add_pokemon_names_to_dict(query_items, names)
         team_weaknesses = tl.calculate_team_weakness(query_items)
-        weakest_types = tl.get_weakest_type(team_weaknesses)
-        pokemon_recommendations = tl.get_pokemon_recommendations(weakest_types, pokemon_names)
+        weakest_types = tl.get_weakest_types(team_weaknesses, names)
+        pokemon_recommendations = tl.get_pokemon_recommendations(weakest_types, request.app.state.all_pokemon_multipliers, names)
     except tl.PokemonNotFound as e:
         raise HTTPException(status_code = e.error_code, detail = e.message)
     query_items["team_weakness"] = team_weaknesses
