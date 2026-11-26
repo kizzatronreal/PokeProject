@@ -87,7 +87,7 @@ def test_pokemon_teams(names: Annotated[list[PokemonName], Query()], request: Re
         pokemon_recommendations = tl.get_pokemon_recommendations(weakest_types, request.app.state.all_pokemon_multipliers, names)
     except tl.PokemonNotFound as e:
         raise HTTPException(status_code = e.error_code, detail = e.message)
-    query_items["recommendations"] = tl.format_pokemon_recommendations(pokemon_recommendations)
+    query_items["recommendations"] = tl.format_pokemon_recommendations(pokemon_recommendations, request.app.state.all_pokemon_multipliers)
     return query_items
 
 app.mount("/", StaticFiles(directory=str(frontend_path), html=True), name="static")

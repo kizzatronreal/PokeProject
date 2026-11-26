@@ -213,10 +213,10 @@ def get_pokemon_recommendations(weakest_team_types, pokemon_dicts, team):
     sorted_list = sorted(recommendations, key=lambda item: item[1])
     return sorted_list
 
-def format_pokemon_recommendations(recommendations):
+def format_pokemon_recommendations(recommendations, pokemon_dicts):
     new_dict = dict()
     for pokemon, score in recommendations:
-        new_dict[pokemon] = {"score": score, "id": get_pokemon_id(pokemon), "types": get_pokemon(pokemon)}
+        new_dict[pokemon] = {"score": score, "id": pokemon_dicts.get(pokemon, {}).get("id", None), "types": pokemon_dicts.get(pokemon, {}).get("types", None)}
     return new_dict
 
 if __name__ == "__main__":
