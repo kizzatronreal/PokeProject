@@ -66,19 +66,29 @@ def read_all_pokemon_names():
     return {"names": all_pokemon_names}
 
 @app.get("/api/team/analyze")
-def test_pokemon_teams(names: Annotated[list[PokemonName], Query()], request: Request):
-    query_items = {}
+def test_pokemon_teams(names: Annotated[list[PokemonName], Query()]):
     try:
+        query_items = {}
         add_pokemon_names_to_dict(query_items, names)
         team_weaknesses = tl.calculate_team_weakness(query_items)
+    except tl.PokemonNotFound as e:
+        raise HTTPException(status_code = e.error_code, detail = e.message)
+    query_items["team_weakness"] = team_weaknesses
+    return query_items
+
+@app.get("/api/team/recommendations")
+def test_pokemon_teams(names: Annotated[list[PokemonName], Query()], request: Request):
+    try:
+        query_items = {}
+        team = {}
+        add_pokemon_names_to_dict(team, names)
+        team_weaknesses = tl.calculate_team_weakness(team)
         weakest_types = tl.get_weakest_types(team_weaknesses, names)
         pokemon_recommendations = tl.get_pokemon_recommendations(weakest_types, request.app.state.all_pokemon_multipliers, names)
     except tl.PokemonNotFound as e:
         raise HTTPException(status_code = e.error_code, detail = e.message)
-    query_items["team_weakness"] = team_weaknesses
-    query_items["test"] = pokemon_recommendations
+    query_items["recommendations"] = tl.format_pokemon_recommendations(pokemon_recommendations)
     return query_items
-
 
 app.mount("/", StaticFiles(directory=str(frontend_path), html=True), name="static")
 
