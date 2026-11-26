@@ -98,9 +98,9 @@ export function createPokemonCard(pData){
     card.classList.add("card");
     const img = document.createElement("img");
     img.classList.add("card-img-top");
-    checkForAnimatedSprite(`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/icons/animated/${pData.id}.png`).then(isValid => {
+    checkForAnimatedSprite(`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${pData.id}.gif`).then(isValid => {
         if (isValid){
-            img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/icons/animated/${pData.id}.png`
+            img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${pData.id}.gif`
         } else {
             img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pData.id}.png`
         }
