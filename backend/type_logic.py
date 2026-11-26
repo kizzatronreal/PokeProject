@@ -32,7 +32,7 @@ def fetch_pokemon_from_types(type1, type2):
 def fetch_all_pokemon_info():
     with closing(sqlite3.connect(db_path)) as conn:
         cur = conn.cursor()
-        cur.execute("SELECT name, type1, type2 FROM pokemon")
+        cur.execute("SELECT name, type1, type2, id FROM pokemon")
         return cur.fetchall()
 
 def get_pokemon(name):
@@ -172,8 +172,8 @@ def calculate_team_weakness(team):
 def create_all_type_dicts():
     pokemonArr = fetch_all_pokemon_info()
     new_dict = {}
-    for pokemon, type1, type2 in pokemonArr:
-        new_dict[pokemon] = calculate_typings(get_type_information_no_db((type1, type2)))
+    for pokemon, type1, type2, id in pokemonArr:
+        new_dict[pokemon] = {"defensive_chart": calculate_typings(get_type_information_no_db((type1, type2))), "id": id, "types": [type1, type2]}
     return new_dict
 
 def get_weakest_types(team_weakness, team):
@@ -184,33 +184,44 @@ def get_weakest_types(team_weakness, team):
     sorted_list = sorted(weakest_types, reverse=True, key=lambda type: type[1])
     return sorted_list
 
-#loop through all pokemon
-#if pokemon is already in team skip.
-#add there weakest types to the team weakest types
-#compute the sum. If the sum is less then the team types length - 1 add to hashset
+
 def simulate_adding_pokemon(multiplier_dict, weakest_team_types):
     sum = 0
-    for type_name, multiplier in weakest_team_types:
-        sum += multiplier_dict.get(type_name, float("inf"))
+    for i, (type_name, multiplier) in enumerate(weakest_team_types):
+        pokemon_value = multiplier_dict.get(type_name, float("inf"))
+        if (i == 0) and (pokemon_value < 1):
+            sum -= 0.25
+        if (i == 1) and (pokemon_value < 1):
+            sum -= 0.1
+        sum += pokemon_value
     if sum < len(weakest_team_types):
         return (True, sum)
     return False
 
 def get_pokemon_recommendations(weakest_team_types, pokemon_dicts, team):
     recommendations = []
-    for pokemon, multipliers in pokemon_dicts.items():
+    for pokemon, pokemonInfo in pokemon_dicts.items():
         if pokemon in team:
             continue
-        should_be_added = simulate_adding_pokemon(multipliers, weakest_team_types)
-        if should_be_added:
-            recommendations.append([pokemon, should_be_added[1]])
-        sorted_list = sorted(recommendations, key=lambda item: item[1])
+        for key, multipliers in pokemonInfo.items():
+            if key == "id" or key == "types":
+                break
+            should_be_added = simulate_adding_pokemon(multipliers, weakest_team_types)
+            if should_be_added:
+                pokemon_score = should_be_added[1]
+                recommendations.append([pokemon, pokemon_score])
+    sorted_list = sorted(recommendations, key=lambda item: item[1])
     return sorted_list
+
+def format_pokemon_recommendations(recommendations):
+    new_dict = dict()
+    for pokemon, score in recommendations:
+        new_dict[pokemon] = {"score": score, "id": get_pokemon_id(pokemon), "types": get_pokemon(pokemon)}
+    return new_dict
 
 if __name__ == "__main__":
     test = calculate_typings(get_type_information_no_db(get_pokemon("charizard")))
     print("BREAK")
-    pokemon_names = break_down_string_tuples(fetch_pokemon_from_types("fire", "dark"))
 
     
 
