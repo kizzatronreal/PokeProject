@@ -176,23 +176,36 @@ def create_all_type_dicts():
         new_dict[pokemon] = calculate_typings(get_type_information_no_db((type1, type2)))
     return new_dict
 
-def get_weakest_type(team_weakness):
+def get_weakest_types(team_weakness, team):
     weakest_types = []
     for key, value in team_weakness.items():
-        weakest_types.append([key, value])
+        if value > len(team):
+            weakest_types.append([key, value])
     sorted_list = sorted(weakest_types, reverse=True, key=lambda type: type[1])
-    return sorted_list[0:2]
+    return sorted_list
 
-def get_pokemon_recommendations(weakest_types, pokemon_dicts):
-    type1, type2 = weakest_types
-    type1_name, type1_multiplier = type1
-    type2_name, type2_multiplier = type2
-    pokemon_recommendations = set()
+#loop through all pokemon
+#if pokemon is already in team skip.
+#add there weakest types to the team weakest types
+#compute the sum. If the sum is less then the team types length - 1 add to hashset
+def simulate_adding_pokemon(multiplier_dict, weakest_team_types):
+    sum = 0
+    for type_name, multiplier in weakest_team_types:
+        sum += multiplier_dict.get(type_name, float("inf"))
+    if sum < len(weakest_team_types):
+        return (True, sum)
+    return False
+
+def get_pokemon_recommendations(weakest_team_types, pokemon_dicts, team):
+    recommendations = []
     for pokemon, multipliers in pokemon_dicts.items():
-        if (multipliers.get(type1_name, float("inf")) <= 0.5 and multipliers.get(type2_name, float("inf")) <= 0.5):
-            pokemon_recommendations.add(pokemon)
-
-    return pokemon_recommendations
+        if pokemon in team:
+            continue
+        should_be_added = simulate_adding_pokemon(multipliers, weakest_team_types)
+        if should_be_added:
+            recommendations.append([pokemon, should_be_added[1]])
+        sorted_list = sorted(recommendations, key=lambda item: item[1])
+    return sorted_list
 
 if __name__ == "__main__":
     test = calculate_typings(get_type_information_no_db(get_pokemon("charizard")))
